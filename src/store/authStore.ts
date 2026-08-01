@@ -14,6 +14,21 @@ function normalizeUser(user: AuthUser): AuthUser {
   return { ...user, full_name: user.full_name || user.username }
 }
 
+/** A valid session user must be a plain object with the expected fields.
+ *  Guards against malformed shapes persisted by older versions (e.g. a JSON
+ *  array spread into `{0: {...}}` when `me` returned a PostgREST array). */
+function hasValidUser(u: unknown): u is AuthUser {
+  return (
+    typeof u === 'object' &&
+    u !== null &&
+    !Array.isArray(u) &&
+    typeof (u as AuthUser).id === 'string' &&
+    typeof (u as AuthUser).username === 'string' &&
+    typeof (u as AuthUser).full_name === 'string' &&
+    ((u as AuthUser).role === 'admin' || (u as AuthUser).role === 'supervisor')
+  )
+}
+
 interface AuthState {
   token: string | null
   user: AuthUser | null
@@ -43,9 +58,10 @@ export const useAuthStore = create<AuthState>()(
         }
         try {
           const user = await me(token)
-          if (user) {
+          if (hasValidUser(user)) {
             set({ user: normalizeUser(user), hydrated: true })
           } else {
+            // Invalid/unknown session: drop it so the login page shows again.
             set({ token: null, user: null, hydrated: true })
           }
         } catch {
@@ -56,20 +72,13 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'tempahan-auth',
-      version: 2,
+      version: 3,
       migrate: (persistedState) => {
         const state = persistedState as Partial<AuthState> | undefined
         const user = state?.user
-        // Keep the session only if it is structurally valid; otherwise discard
-        // it so the user logs in again with a clean session.
-        if (
-          state?.token &&
-          user &&
-          typeof user.id === 'string' &&
-          typeof user.username === 'string' &&
-          typeof user.full_name === 'string' &&
-          (user.role === 'admin' || user.role === 'supervisor')
-        ) {
+        // Keep the session only if the user is structurally valid; otherwise
+        // discard it so the user logs in again with a clean session.
+        if (state?.token && hasValidUser(user)) {
           return { token: state.token, user: normalizeUser(user), hydrated: false }
         }
         return { ...DEFAULT_STATE }

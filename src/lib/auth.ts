@@ -24,7 +24,10 @@ export async function loginWithUsername(username: string, password: string): Pro
 export async function me(token: string): Promise<AuthUser | null> {
   const { data, error } = await supabase.rpc('me', { p_token: token })
   if (error) throw error
-  return data ?? null
+  // `me` is a set-returning function, so PostgREST returns a JSON array even
+  // for a single (or zero) rows. Normalize both shapes to a single user.
+  const row = Array.isArray(data) ? data[0] : data
+  return (row ?? null) as AuthUser | null
 }
 
 export async function logoutRemote(token: string): Promise<void> {

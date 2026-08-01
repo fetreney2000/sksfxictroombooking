@@ -353,14 +353,21 @@ as $$
 $$;
 
 -- Return the currently authenticated user for a token (client session check).
+-- Returns a single JSON object, or null when the token is invalid/expired.
 create or replace function public.me(p_token uuid)
-returns table (id uuid, username text, full_name text, role text, is_active boolean)
+returns json
 language sql
 security definer
 set search_path = public
 stable
 as $$
-  select u.id, u.username, u.full_name, u.role, u.is_active
+  select json_build_object(
+    'id', u.id,
+    'username', u.username,
+    'full_name', u.full_name,
+    'role', u.role,
+    'is_active', u.is_active
+  )
   from public.token_user(p_token) u;
 $$;
 

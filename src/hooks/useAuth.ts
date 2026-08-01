@@ -7,7 +7,7 @@ export function useAuth() {
   const hydrated = useAuthStore((s) => s.hydrated)
 
   return {
-    session: token ? { token, user } : null,
+    session: token && user ? { token, user } : null,
     initializing: !hydrated,
   }
 }
@@ -18,7 +18,7 @@ export function useCurrentUser() {
   const hydrated = useAuthStore((s) => s.hydrated)
 
   return {
-    session: token ? { token, user } : null,
+    session: token && user ? { token, user } : null,
     profile: user,
     isLoading: !hydrated,
     error: null,
