@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
-import { MonitorSmartphone } from 'lucide-react'
+import { LogIn, MonitorSmartphone } from 'lucide-react'
 import { isSupabaseConfigured } from '@/lib/supabaseClient'
 import { useCurrentUser } from '@/hooks/useAuth'
 
@@ -31,7 +31,15 @@ export function PublicLayout() {
             >
               Papan Pemuka
             </Link>
-          ) : null}
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-accent"
+            >
+              <LogIn className="h-4 w-4" />
+              Log Masuk
+            </Link>
+          )}
         </div>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
