@@ -254,7 +254,6 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
           <Input
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Cari tarikh, guru, kelas, tujuan..."
             className="pl-8"
           />
         </div>
@@ -434,7 +433,7 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
                 <Label htmlFor="edit-slot">Slot Masa</Label>
                 <Select name="time_slot_id" defaultValue={editing.time_slot_id} required>
                   <SelectTrigger id="edit-slot" className="w-full">
-                    <SelectValue placeholder="Pilih slot" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {slots?.map((slot) => (
@@ -450,7 +449,7 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
                 <Label htmlFor="edit-teacher">Nama Guru</Label>
                 <Select name="teacher_id" defaultValue={editing.teacher_id} required>
                   <SelectTrigger id="edit-teacher" className="w-full">
-                    <SelectValue placeholder="Pilih guru" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {teachers?.map((teacher) => (

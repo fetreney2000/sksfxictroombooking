@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Info, ShieldCheck, UserCog, UserPlus } from 'lucide-react'
+import { ShieldCheck, UserCog, UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDateTimeDisplay } from '@/lib/datetime'
 import { useAllUsers, useCreateUser, useUpdateUser, type AdminUser } from '@/hooks/mutations'
@@ -115,20 +115,6 @@ export function UsersPage() {
         </Button>
       </div>
 
-      <Card className="border-blue-200 bg-blue-50 dark:border-blue-900/40 dark:bg-blue-950/30">
-        <CardContent className="flex items-start gap-3 p-4">
-          <Info className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
-          <div className="text-sm">
-            <p className="font-semibold">Maklumat akaun</p>
-            <p className="mt-1 text-muted-foreground">
-              Akaun dicipta di sini dengan nama pengguna dan kata laluan. Kata laluan disimpan dalam
-              pangkalan data menggunakan penyulitan <strong>bcrypt</strong>. Log masuk hanya menggunakan
-              nama pengguna dan kata laluan — tiada pendaftaran awam.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
       <Card>
         <CardHeader>
           <CardTitle>Senarai Pengguna</CardTitle>
@@ -212,7 +198,6 @@ export function UsersPage() {
               <Label htmlFor="new-username">Nama Pengguna</Label>
               <Input
                 id="new-username"
-                placeholder="cth. cikgu_aziz"
                 value={createForm.username}
                 onChange={(e) => setCreateForm((f) => ({ ...f, username: e.target.value }))}
               />
@@ -222,7 +207,6 @@ export function UsersPage() {
               <Input
                 id="new-password"
                 type="password"
-                placeholder="Sekurang-kurangnya 6 aksara"
                 value={createForm.password}
                 onChange={(e) => setCreateForm((f) => ({ ...f, password: e.target.value }))}
               />
@@ -231,7 +215,6 @@ export function UsersPage() {
               <Label htmlFor="new-name">Nama Penuh</Label>
               <Input
                 id="new-name"
-                placeholder="cth. Cikgu Aziz Rahman"
                 value={createForm.fullName}
                 onChange={(e) => setCreateForm((f) => ({ ...f, fullName: e.target.value }))}
               />
@@ -294,7 +277,6 @@ export function UsersPage() {
               <Input
                 id="edit-password"
                 type="password"
-                placeholder="Biarkan kosong jika tidak mahu tukar"
                 value={editForm.newPassword}
                 onChange={(e) => setEditForm((f) => ({ ...f, newPassword: e.target.value }))}
               />

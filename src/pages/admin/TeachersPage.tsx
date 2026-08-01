@@ -198,7 +198,7 @@ export function TeachersPage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="teacher-name">Nama Penuh</Label>
-              <Input id="teacher-name" placeholder="Contoh: Cikgu Siti Aminah" {...form.register('full_name')} />
+              <Input id="teacher-name" {...form.register('full_name')} />
               {form.formState.errors.full_name && (
                 <p className="text-sm text-destructive">{form.formState.errors.full_name.message}</p>
               )}

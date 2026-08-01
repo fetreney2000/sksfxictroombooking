@@ -134,7 +134,6 @@ export function ReportsPage() {
               <Label htmlFor="report-class">Kelas</Label>
               <Input
                 id="report-class"
-                placeholder="Contoh: 5 Cerdik"
                 value={classFilter}
                 onChange={(e) => setClassFilter(e.target.value)}
               />

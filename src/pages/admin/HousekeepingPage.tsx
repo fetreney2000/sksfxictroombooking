@@ -89,7 +89,6 @@ export function HousekeepingPage() {
               <Label htmlFor="block-reason">Sebab (pilihan)</Label>
               <Input
                 id="block-reason"
-                placeholder="Contoh: Cuti perayaan, Hari peperiksaan"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 maxLength={200}
