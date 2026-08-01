@@ -1,0 +1,36 @@
+- create a school it lab booking system.
+- it will have a public page where teacher can fill out a form to book it lab (login is not required).
+- show a calender view where user can select date, after that show a time slot where teacher can select a slot to book.
+- the time slot are:
+	- 07:20 AM - 07:50 AM
+	- 07:50 AM - 08:20 AM
+	- 08:20 AM - 08:50 AM
+	- 08:50 AM - 09:20 AM
+	- 09:20 AM - 09:50 AM
+	- 09:50 AM - 10:20 AM
+	- 10:20 AM - 10:40 AM
+	- 10:40 AM - 11:10 AM
+	- 11:10 AM - 11:40 AM
+	- 11:40 AM - 12:10 PM
+	- 12:10 PM - 12:40 PM
+	- 12:40 PM - 01:10 PM
+- all front facing ui should use bahasa melayu malaysia.
+- all date and time related functions should be adjusted to use Kuala Lumpur Malaysia time.
+- when teacher has selected a slot, they need to select their own name from a list of teachers name.
+- after that they need to enter the class that they want to bring into the it lab and the purpose of their it lab booking.
+- after that they need to click a button to submit the form.
+- prepare a button to clear the form and start fresh.
+- supervisor can login into the system to view all bookings, view booking dashboard and view reports.
+- admin can login to register teacher's name, modify slot, housekeeping, etc... admin can view anything a supervisor can view.
+- app will be hosted on vercel hobby tier.
+- create a PWA web app.
+- use the following tech stack:
+	- Build Tool: Vite
+	- Framework: React
+	- Routing: React Router v6
+	- Data Fetching: TanStack Query
+	- Global State: Zustand
+	- Styling: Tailwind CSS
+	- UI Components: shadcn/ui
+	- Backend/DB: Supabase free tier
+	- data table: Tanstack Table
