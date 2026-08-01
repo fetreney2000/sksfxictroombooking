@@ -111,10 +111,14 @@ supabase db push
 ### Pilihan B: SQL Editor dalam Dashboard
 
 1. Cipta projek baharu di [supabase.com](https://supabase.com) (rantau **Southeast Asia** untuk kependaman terbaik — `ap-southeast-1`).
-2. Buka **SQL Editor** dan jalankan fail berikut mengikut urutan:
+2. Buka **SQL Editor** dan jalankan **`supabase/full_setup.sql`** (gabungan semua migrasi dalam satu fail, termasuk muat semula cache skema PostgREST). 
+
+   Atau, jalankan fail berikut mengikut urutan:
    - `supabase/migrations/20260801000001_init.sql`
    - `supabase/migrations/20260801000002_rls.sql`
    - `supabase/migrations/20260801000003_seed.sql`
+
+   > **Jika anda mendapat ralat "Could not find the table 'public.time_slots' in the schema cache"**, ini bermaksud jadual belum wujud atau cache PostgREST belum dimuat semula. Jalankan semula `supabase/full_setup.sql` (ia idempotent) atau jalankan `select pg_notify('pgrst', 'reload schema');` dalam SQL Editor.
 
 Migrasi ini mencipta jadual (`profiles`, `teachers`, `time_slots`, `blocked_dates`, `bookings`), **Row Level Security** untuk setiap jadual, trigger auto-profil apabila pengguna auth dicipta, dan data asas (12 slot masa + 6 guru contoh).
 
