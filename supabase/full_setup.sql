@@ -295,7 +295,7 @@ select pg_notify('pgrst', 'reload schema');
 --
 -- Replaces Supabase Auth email/password with an application-managed
 -- `users` table. Passwords are hashed with bcrypt using the `pgcrypto`
--- extension (`crypt(password, gen_salt('bf', 10))`).
+-- extension (`extensions.crypt(password, extensions.gen_salt('bf', 10))`).
 --
 -- Access model:
 --   * No RLS policies on `users` / `sessions` â€” hashes must never be
@@ -399,7 +399,7 @@ begin
     return null;
   end if;
 
-  if v_user.password_hash = crypt(p_password, v_user.password_hash) then
+  if v_user.password_hash = extensions.crypt(p_password, v_user.password_hash) then
     insert into public.sessions (user_id)
     values (v_user.id)
     returning token into v_token;
@@ -450,7 +450,7 @@ begin
   end if;
 
   insert into public.users (username, password_hash, full_name, role)
-  values (lower(trim(p_username)), crypt(p_password, gen_salt('bf', 10)), p_full_name, 'admin')
+  values (lower(trim(p_username)), extensions.crypt(p_password, extensions.gen_salt('bf', 10)), p_full_name, 'admin')
   returning id into v_id;
 
   return v_id;
@@ -486,7 +486,7 @@ begin
   end if;
 
   insert into public.users (username, password_hash, full_name, role)
-  values (lower(trim(p_username)), crypt(p_password, gen_salt('bf', 10)), p_full_name, p_role)
+  values (lower(trim(p_username)), extensions.crypt(p_password, extensions.gen_salt('bf', 10)), p_full_name, p_role)
   returning id into v_id;
 
   return v_id;
@@ -524,7 +524,7 @@ begin
   set full_name = p_full_name,
       role = p_role,
       is_active = p_is_active,
-      password_hash = case when p_new_password is not null then crypt(p_new_password, gen_salt('bf', 10)) else password_hash end
+      password_hash = case when p_new_password is not null then extensions.crypt(p_new_password, extensions.gen_salt('bf', 10)) else password_hash end
   where id = p_user_id;
 end;
 $$;
