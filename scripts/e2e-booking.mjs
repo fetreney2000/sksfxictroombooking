@@ -38,6 +38,12 @@ const KELAS = [
   { id: '11111111-3333-4111-8111-000000000003', name: '5 Bijak', is_active: true, created_at: '2026-01-01T00:00:00.000Z' },
 ]
 
+const TUJUAN = [
+  { id: '11111111-4444-4111-8111-000000000001', name: 'Kelas PdPc TMK', is_active: true, created_at: '2026-01-01T00:00:00.000Z' },
+  { id: '11111111-4444-4111-8111-000000000002', name: 'Ujian Amali', is_active: true, created_at: '2026-01-01T00:00:00.000Z' },
+  { id: '11111111-4444-4111-8111-000000000003', name: 'Ujian amali TMK', is_active: true, created_at: '2026-01-01T00:00:00.000Z' },
+]
+
 // Track which slots are "booked" for the chosen date in the mock.
 const mockBookings = new Map()
 
@@ -109,6 +115,7 @@ async function main() {
       if (path.endsWith('/time_slots')) payload = SLOTS
       else if (path.endsWith('/teachers')) payload = TEACHERS
       else if (path.endsWith('/kelas')) payload = KELAS
+      else if (path.endsWith('/tujuan_tempahan')) payload = TUJUAN
       else if (path.endsWith('/blocked_dates')) payload = BLOCKED
       else if (path.endsWith('/bookings') && method === 'GET') {
         const date = u.searchParams.get('booking_date')?.replace('eq.', '')
@@ -232,8 +239,16 @@ async function main() {
   await page.keyboard.press('ArrowDown')
   await page.keyboard.press('Enter')
   await new Promise((r) => setTimeout(r, 500))
-  await page.type('#purpose', 'Kelas PdPc TMK')
-  await new Promise((r) => setTimeout(r, 300))
+
+  // Select purpose from the tujuan combobox
+  await page.click('#purpose')
+  await new Promise((r) => setTimeout(r, 400))
+  await page.keyboard.type('Kelas PdPc TMK')
+  await new Promise((r) => setTimeout(r, 400))
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
+  await new Promise((r) => setTimeout(r, 500))
+
   await clickButton(page, 'Seterusnya')
   await new Promise((r) => setTimeout(r, 800))
 
@@ -324,7 +339,13 @@ async function main() {
   await page.keyboard.press('ArrowDown')
   await page.keyboard.press('Enter')
   await new Promise((r) => setTimeout(r, 400))
-  await page.type('#purpose', 'Ujian amali TMK')
+  await page.click('#purpose')
+  await new Promise((r) => setTimeout(r, 400))
+  await page.keyboard.type('Ujian amali TMK')
+  await new Promise((r) => setTimeout(r, 400))
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
+  await new Promise((r) => setTimeout(r, 400))
   await clickButton(page, 'Seterusnya')
   await new Promise((r) => setTimeout(r, 600))
 

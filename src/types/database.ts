@@ -119,6 +119,27 @@ export interface Database {
         }
         Relationships: []
       }
+      tujuan_tempahan: {
+        Row: {
+          id: string
+          name: string
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           id: string
@@ -301,6 +322,18 @@ export interface Database {
       }
       admin_delete_time_slot: {
         Args: { p_token: string; p_slot_id: string }
+        Returns: null
+      }
+      admin_save_tujuan_tempahan: {
+        Args: { p_token: string; p_tujuan_id: string | null; p_name: string }
+        Returns: null
+      }
+      admin_set_tujuan_tempahan_active: {
+        Args: { p_token: string; p_tujuan_id: string; p_is_active: boolean }
+        Returns: null
+      }
+      admin_delete_tujuan_tempahan: {
+        Args: { p_token: string; p_tujuan_id: string }
         Returns: null
       }
     }

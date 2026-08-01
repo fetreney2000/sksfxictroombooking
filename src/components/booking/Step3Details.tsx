@@ -5,6 +5,7 @@ import { bookingDetailsSchema, type BookingDetailsValues } from '@/lib/validator
 import { useBookingFormStore } from '@/store/bookingFormStore'
 import { useTeachers } from '@/hooks/useTeachers'
 import { useKelas } from '@/hooks/useKelas'
+import { useTujuanTempahan } from '@/hooks/useTujuanTempahan'
 import {
   Combobox,
   ComboboxContent,
@@ -15,7 +16,6 @@ import {
 } from '@/components/ui/combobox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 
 interface Step3DetailsProps {
@@ -33,6 +33,11 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
 
   const { data: teachers, isLoading: teachersLoading, error: teachersError } = useTeachers()
   const { data: kelasList, isLoading: kelasLoading, error: kelasError } = useKelas()
+  const {
+    data: tujuanList,
+    isLoading: tujuanLoading,
+    error: tujuanError,
+  } = useTujuanTempahan()
 
   const form = useForm<BookingDetailsValues>({
     resolver: zodResolver(bookingDetailsSchema),
@@ -59,12 +64,12 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          {teachersError || kelasError ? (
+          {teachersError || kelasError || tujuanError ? (
             <div className="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <p>
-                Gagal memuatkan senarai {teachersError ? 'guru' : 'kelas'}:
-                {teachersError?.message ?? kelasError?.message}
+                Gagal memuatkan senarai {teachersError ? 'guru' : kelasError ? 'kelas' : 'tujuan'}:
+                {teachersError?.message ?? kelasError?.message ?? tujuanError?.message}
               </p>
             </div>
           ) : null}
@@ -151,11 +156,38 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
 
           <div className="space-y-2">
             <Label htmlFor="purpose">Tujuan Tempahan</Label>
-            <Textarea
-              id="purpose"
-              rows={4}
-              {...form.register('purpose')}
-              aria-invalid={Boolean(form.formState.errors.purpose)}
+            <Controller
+              control={form.control}
+              name="purpose"
+              render={({ field }) => {
+                const selectedTujuan = tujuanList?.find((t) => t.name === field.value) ?? null
+                return (
+                  <Combobox
+                    items={tujuanList ?? []}
+                    value={selectedTujuan}
+                    onValueChange={(t) => field.onChange(t ? t.name : '')}
+                    itemToStringValue={(t) => t.name}
+                    itemToStringLabel={(t) => t.name}
+                    disabled={tujuanLoading}
+                  >
+                    <ComboboxInput
+                      id="purpose"
+                      aria-label="Tujuan Tempahan"
+                      aria-invalid={Boolean(form.formState.errors.purpose)}
+                    />
+                    <ComboboxContent>
+                      <ComboboxEmpty>Tiada tujuan ditemui.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(t) => (
+                          <ComboboxItem key={t.id} value={t}>
+                            {t.name}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
+                )
+              }}
             />
             {form.formState.errors.purpose && (
               <p className="text-sm text-destructive">{form.formState.errors.purpose.message}</p>

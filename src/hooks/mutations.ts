@@ -343,3 +343,50 @@ export function useDeleteTimeSlot() {
     onSuccess: () => invalidate(client, [['time_slots']]),
   })
 }
+
+export function useSaveTujuanTempahan() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, name }: { id?: string; name: string }) => {
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_save_tujuan_tempahan', {
+        p_token: token,
+        p_tujuan_id: id ?? null,
+        p_name: name,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => invalidate(client, [['tujuan_tempahan']]),
+  })
+}
+
+export function useSetTujuanTempahanActive() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_set_tujuan_tempahan_active', {
+        p_token: token,
+        p_tujuan_id: id,
+        p_is_active: is_active,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => invalidate(client, [['tujuan_tempahan']]),
+  })
+}
+
+export function useDeleteTujuanTempahan() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_delete_tujuan_tempahan', {
+        p_token: token,
+        p_tujuan_id: id,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => invalidate(client, [['tujuan_tempahan']]),
+  })
+}

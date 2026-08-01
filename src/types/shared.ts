@@ -6,6 +6,7 @@ export type Profile = Tables<'profiles'>
 export type Teacher = Tables<'teachers'>
 export type TimeSlot = Tables<'time_slots'>
 export type Kelas = Tables<'kelas'>
+export type TujuanTempahan = Tables<'tujuan_tempahan'>
 export type BlockedDate = Tables<'blocked_dates'>
 export type Booking = Tables<'bookings'>
 

@@ -28,7 +28,7 @@ Sistem tempahan slot masa **Makmal Komputer** untuk sekolah. Guru menempah slot 
 ### Guru (awam, tiada log masuk)
 - Kalendar Bahasa Melayu: pilih tarikh (Isnin–Jumaat sahaja; hujung minggu, tarikh lepas dan tarikh disekat tidak boleh dipilih).
 - Pilih slot masa (12 slot tetap, dipaparkan dalam format 12 jam).
-- Maklumat tempahan: nama guru (dropdown daripada senarai guru), kelas (dropdown daripada senarai kelas), tujuan.
+- Maklumat tempahan: nama guru (dropdown daripada senarai guru), kelas (dropdown daripada senarai kelas), tujuan tempahan (dropdown daripada senarai tujuan).
 - Semak & hantar dengan pengesahan; kawalan slot sudah ditempah dan perlindungan tempahan dua kali (DB `unique` constraint + UI mesra).
 
 ### Penyelia (log masuk)
@@ -40,6 +40,7 @@ Sistem tempahan slot masa **Makmal Komputer** untuk sekolah. Guru menempah slot 
 Semua keupayaan Penyelia, tambahan:
 - **Urus Guru:** tambah, sunting, aktif/tidak aktif, padam.
 - **Urus Kelas:** tambah, sunting, aktif/tidak aktif, padam senarai kelas.
+- **Urus Tujuan:** tambah, sunting, aktif/tidak aktif, padam senarai tujuan tempahan.
 - **Urus Slot Masa:** ubah masa mula/tamat, aktif/tidak aktif, susun semula, tambah dan padam slot.
 - **Urus Tarikh:** sekat/buka tarikh (cuti, hari peperiksaan) + sunting/padam mana-mana tempahan.
 - **Urus Pengguna:** cipta akaun penyelia/pentadbir (nama pengguna + kata laluan) dan urus peranan, status serta kata laluan.
@@ -121,6 +122,7 @@ supabase db push
    - `supabase/migrations/20260801000003_seed.sql`
    - `supabase/migrations/20260801000004_custom_auth.sql`
    - `supabase/migrations/20260801000005_kelas_and_slots.sql`
+   - `supabase/migrations/20260801000006_tujuan_tempahan.sql`
 
    > **Jika anda mendapat ralat "Could not find the table 'public.time_slots' in the schema cache"**, ini bermaksud jadual belum wujud atau cache PostgREST belum dimuat semula. Jalankan semula `supabase/full_setup.sql` (ia idempotent) atau jalankan `select pg_notify('pgrst', 'reload schema');` dalam SQL Editor.
 
@@ -216,7 +218,7 @@ scripts/         # generate-icons.mjs, test-datetime.ts, smoke tests
 1. Buka laman utama `/`.
 2. **Langkah 1 — Pilih Tarikh:** pilih tarikh Isnin–Jumaat (hari lain dipadamkan). Tarikh yang disekat oleh pentadbir tidak boleh dipilih.
 3. **Langkah 2 — Pilih Slot Masa:** pilih slot yang tersedia. Slot bertanda *Telah Ditempah* tidak boleh dipilih.
-4. **Langkah 3 — Maklumat Tempahan:** pilih nama guru dan kelas daripada senarai, isi tujuan, kemudian **Seterusnya**.
+4. **Langkah 3 — Maklumat Tempahan:** pilih nama guru, kelas dan tujuan tempahan daripada senarai, kemudian **Seterusnya**.
 5. **Langkah 4 — Semak & Hantar:** semak maklumat dan klik **Hantar Tempahan**. Mesej "Tempahan berjaya!" muncul.
 
 Butang **Kosongkan Borang** memadam semua maklumat dan kembali ke Langkah 1 (dengan dialog pengesahan jika ada data).
@@ -231,6 +233,7 @@ Butang **Kosongkan Borang** memadam semua maklumat dan kembali ke Langkah 1 (den
 Semua keupayaan Penyelia, tambahan:
 - **Urus Guru:** tambah/sunting/aktifkan/nyahaktifkan/padam guru.
 - **Urus Kelas:** tambah/sunting/aktifkan/nyahaktifkan/padam senarai kelas.
+- **Urus Tujuan:** tambah/sunting/aktifkan/nyahaktifkan/padam senarai tujuan tempahan.
 - **Urus Slot Masa:** ubah masa, aktif/tidak aktif, susun semula, tambah dan padam slot.
 - **Urus Tarikh:** sekat/buka tarikh; sunting/padam tempahan.
 - **Urus Pengguna:** cipta akaun (nama pengguna + kata laluan), ubah nama, peranan, status aktif, dan kata laluan.
