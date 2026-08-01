@@ -1,10 +1,19 @@
 import { Link, Outlet } from 'react-router-dom'
-import { LogIn, MonitorSmartphone } from 'lucide-react'
+import { LogIn, MonitorSmartphone, ShieldCheck, UserCog } from 'lucide-react'
 import { isSupabaseConfigured } from '@/lib/supabaseClient'
 import { useCurrentUser } from '@/hooks/useAuth'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export function PublicLayout() {
-  const { isAuthenticated } = useCurrentUser()
+  const { isAuthenticated, profile } = useCurrentUser()
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
       {!isSupabaseConfigured && (
@@ -26,19 +35,41 @@ export function PublicLayout() {
           </div>
           {isAuthenticated ? (
             <Link
-              to="/supervisor/dashboard"
-              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-accent"
+              to={profile?.role === 'admin' ? '/admin/dashboard' : '/supervisor/dashboard'}
+              className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-accent"
             >
+              <ShieldCheck className="h-4 w-4" />
               Papan Pemuka
             </Link>
           ) : (
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-accent"
-            >
-              <LogIn className="h-4 w-4" />
-              Log Masuk
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="inline-flex items-center gap-1.5 shadow-sm"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Log Masuk
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Log masuk sebagai</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/login">
+                    <UserCog className="mr-2 h-4 w-4" />
+                    Penyelia
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/login">
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Pentadbir
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </header>
