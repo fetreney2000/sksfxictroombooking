@@ -1,16 +1,7 @@
 import { Link, Outlet } from 'react-router-dom'
-import { LogIn, MonitorSmartphone, ShieldCheck, UserCog } from 'lucide-react'
+import { MonitorSmartphone, ShieldCheck } from 'lucide-react'
 import { isSupabaseConfigured } from '@/lib/supabaseClient'
 import { useCurrentUser } from '@/hooks/useAuth'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 
 export function PublicLayout() {
   const { isAuthenticated, profile } = useCurrentUser()
@@ -41,36 +32,7 @@ export function PublicLayout() {
               <ShieldCheck className="h-4 w-4" />
               Papan Pemuka
             </Link>
-          ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="inline-flex items-center gap-1.5 shadow-sm"
-                >
-                  <LogIn className="h-4 w-4" />
-                  Log Masuk
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Log masuk sebagai</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/login">
-                    <UserCog className="mr-2 h-4 w-4" />
-                    Penyelia
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/login">
-                    <ShieldCheck className="mr-2 h-4 w-4" />
-                    Pentadbir
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          ) : null}
         </div>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
