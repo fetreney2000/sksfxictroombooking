@@ -20,8 +20,8 @@ export function PublicLayout() {
               <MonitorSmartphone className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-base font-bold leading-tight sm:text-lg">Sistem Tempahan Makmal Komputer</h1>
-              <p className="text-xs text-muted-foreground">Tempah slot Makmal Komputer untuk sesi PdPc</p>
+              <h1 className="text-base font-bold leading-tight sm:text-lg">Sistem Tempahan Bilik ICT</h1>
+              <p className="text-xs text-muted-foreground">Tempah slot Bilik ICT untuk sesi PdPc</p>
             </div>
           </div>
           {isAuthenticated ? (
@@ -47,7 +47,7 @@ export function PublicLayout() {
       </main>
       <footer className="border-t bg-background py-4">
         <p className="text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Sistem Tempahan Makmal Komputer · Sekolah Kebangsaan
+          © {new Date().getFullYear()} Sistem Tempahan Bilik ICT SK SFX Keningau
         </p>
       </footer>
     </div>

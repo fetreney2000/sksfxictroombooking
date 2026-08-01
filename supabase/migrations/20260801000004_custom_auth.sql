@@ -1,4 +1,4 @@
-﻿-- Sistem Tempahan Makmal Komputer
+﻿-- Sistem Tempahan Bilik ICT
 -- Migration 00004: Custom username/password auth
 --
 -- Replaces Supabase Auth email/password with an application-managed
@@ -505,4 +505,5 @@ grant execute on function public.admin_delete_booking(uuid, uuid) to anon, authe
 
 -- Refresh the PostgREST schema cache.
 select pg_notify('pgrst', 'reload schema');
+
 

@@ -1,4 +1,4 @@
-# Sistem Tempahan Makmal Komputer
+﻿# Sistem Tempahan Bilik ICT
 
 Sistem tempahan slot masa **Makmal Komputer** untuk sekolah. Guru menempah slot melalui **borang awam (tanpa log masuk)**, manakala Penyelia dan Pentadbir melihat tempahan, papan pemuka, dan laporan selepas log masuk.
 
@@ -26,7 +26,7 @@ Sistem tempahan slot masa **Makmal Komputer** untuk sekolah. Guru menempah slot 
 ## Ciri-ciri
 
 ### Guru (awam, tiada log masuk)
-- Kalendar Bahasa Melayu: pilih tarikh (Isnin–Jumaat sahaja; hujung minggu, tarikh lepas dan tarikh disekat tidak boleh dipilih).
+- Kalendar Bahasa Melayu: pilih tarikh (Isninâ€“Jumaat sahaja; hujung minggu, tarikh lepas dan tarikh disekat tidak boleh dipilih).
 - Pilih slot masa (12 slot tetap, dipaparkan dalam format 12 jam).
 - Maklumat tempahan: nama guru (dropdown daripada senarai guru), kelas, tujuan.
 - Semak & hantar dengan pengesahan; kawalan slot sudah ditempah dan perlindungan tempahan dua kali (DB `unique` constraint + UI mesra).
@@ -111,7 +111,7 @@ supabase db push
 
 ### Pilihan B: SQL Editor dalam Dashboard
 
-1. Cipta projek baharu di [supabase.com](https://supabase.com) (rantau **Southeast Asia** untuk kependaman terbaik — `ap-southeast-1`).
+1. Cipta projek baharu di [supabase.com](https://supabase.com) (rantau **Southeast Asia** untuk kependaman terbaik â€” `ap-southeast-1`).
 2. Buka **SQL Editor** dan jalankan **`supabase/full_setup.sql`** (gabungan semua migrasi dalam satu fail, termasuk muat semula cache skema PostgREST). 
 
    Atau, jalankan fail berikut mengikut urutan:
@@ -126,16 +126,16 @@ Migrasi ini mencipta jadual (`profiles`, `teachers`, `time_slots`, `blocked_date
 
 ### Kekunci API
 
-1. Pergi ke **Project Settings → API**.
+1. Pergi ke **Project Settings â†’ API**.
 2. Salin **Project URL** ke `VITE_SUPABASE_URL`.
 3. Salin **anon public key** ke `VITE_SUPABASE_ANON_KEY`.
-4. (Pilihan) Salin `service_role` jika perlu — **jangan dedahkan kepada pelanggan**.
+4. (Pilihan) Salin `service_role` jika perlu â€” **jangan dedahkan kepada pelanggan**.
 
 ### Log masuk: nama pengguna + kata laluan (bcrypt)
 
 Sistem menggunakan **jadual `users` sendiri** (bukan Supabase Auth email/password). Kata laluan disimpan sebagai hash **bcrypt** melalui sambungan `pgcrypto` (`crypt(password, gen_salt('bf', 10))`).
 
-**Akaun pentadbir pertama (bootstrap):** Buka `/login` — jika belum ada pengguna, borang "Persediaan Akaun Pentadbir Pertama" muncul untuk mencipta pentadbir pertama. Atau jalankan dalam SQL Editor:
+**Akaun pentadbir pertama (bootstrap):** Buka `/login` â€” jika belum ada pengguna, borang "Persediaan Akaun Pentadbir Pertama" muncul untuk mencipta pentadbir pertama. Atau jalankan dalam SQL Editor:
 
 ```sql
 select public.bootstrap_admin('admin', 'KATA_LALUAN', 'Pentadbir Sistem');
@@ -145,14 +145,14 @@ select public.bootstrap_admin('admin', 'KATA_LALUAN', 'Pentadbir Sistem');
 
 Log masuk menggunakan nama pengguna + kata laluan. Sesi disimpan sebagai token rawak dalam jadual `sessions` (tamat tempoh 7 hari) dan disimpan di pelayar.
 
-> **Penting:** hash kata laluan **tidak pernah** didedahkan — jadual `users` tidak mempunyai sebarang dasar RLS; semua capaian melalui fungsi security-definer (`login`, `admin_*`). Semua operasi pentadbir mengesahkan token sesi dan peranan `admin` di peringkat pangkalan data.
+> **Penting:** hash kata laluan **tidak pernah** didedahkan â€” jadual `users` tidak mempunyai sebarang dasar RLS; semua capaian melalui fungsi security-definer (`login`, `admin_*`). Semua operasi pentadbir mengesahkan token sesi dan peranan `admin` di peringkat pangkalan data.
 
 ---
 
 ## Penyebaran ke Vercel
 
 1. Push repositori ke GitHub/GitLab/Bitbucket.
-2. Buka [vercel.com](https://vercel.com) → **Add New → Project** dan import repositori.
+2. Buka [vercel.com](https://vercel.com) â†’ **Add New â†’ Project** dan import repositori.
 3. Vercel akan mengesan Vite secara automatik:
    - **Build command:** `npm run build`
    - **Output directory:** `dist`
@@ -161,9 +161,9 @@ Log masuk menggunakan nama pengguna + kata laluan. Sesi disimpan sebagai token r
    - `VITE_SUPABASE_ANON_KEY`
 5. Klik **Deploy**.
 
-Fail `vercel.json` disertakan supaya **pautan dalam/deep-link** (cth. `/login`, `/admin/bookings`) dan muat semula halaman tidak kembali 404 — semua laluan ditulis semula ke `index.html` (SPA routing).
+Fail `vercel.json` disertakan supaya **pautan dalam/deep-link** (cth. `/login`, `/admin/bookings`) dan muat semula halaman tidak kembali 404 â€” semua laluan ditulis semula ke `index.html` (SPA routing).
 
-PWA memerlukan HTTPS — Vercel menyediakan sijil secara automatik.
+PWA memerlukan HTTPS â€” Vercel menyediakan sijil secara automatik.
 
 ---
 
@@ -212,10 +212,10 @@ scripts/         # generate-icons.mjs, test-datetime.ts, smoke tests
 
 ### Guru (tiada log masuk)
 1. Buka laman utama `/`.
-2. **Langkah 1 — Pilih Tarikh:** pilih tarikh Isnin–Jumaat (hari lain dipadamkan). Tarikh yang disekat oleh pentadbir tidak boleh dipilih.
-3. **Langkah 2 — Pilih Slot Masa:** pilih slot yang tersedia. Slot bertanda *Telah Ditempah* tidak boleh dipilih.
-4. **Langkah 3 — Maklumat Tempahan:** pilih nama guru daripada senarai, isi kelas dan tujuan, kemudian **Seterusnya**.
-5. **Langkah 4 — Semak & Hantar:** semak maklumat dan klik **Hantar Tempahan**. Mesej "Tempahan berjaya!" muncul.
+2. **Langkah 1 â€” Pilih Tarikh:** pilih tarikh Isninâ€“Jumaat (hari lain dipadamkan). Tarikh yang disekat oleh pentadbir tidak boleh dipilih.
+3. **Langkah 2 â€” Pilih Slot Masa:** pilih slot yang tersedia. Slot bertanda *Telah Ditempah* tidak boleh dipilih.
+4. **Langkah 3 â€” Maklumat Tempahan:** pilih nama guru daripada senarai, isi kelas dan tujuan, kemudian **Seterusnya**.
+5. **Langkah 4 â€” Semak & Hantar:** semak maklumat dan klik **Hantar Tempahan**. Mesej "Tempahan berjaya!" muncul.
 
 Butang **Kosongkan Borang** memadam semua maklumat dan kembali ke Langkah 1 (dengan dialog pengesahan jika ada data).
 
@@ -237,7 +237,7 @@ Semua keupayaan Penyelia, tambahan:
 ## Nota Teknikal
 
 ### Zon waktu
-Semua tarikh/masa dikira, disimpan (sebagai `timestamptz`/`date` di Supabase) dan dipaparkan menggunakan **Asia/Kuala_Lumpur**. Keseluruhan logik tarikh berpusat di `src/lib/datetime.ts` — jangan panggil `new Date()` secara ad-hoc di tempat lain.
+Semua tarikh/masa dikira, disimpan (sebagai `timestamptz`/`date` di Supabase) dan dipaparkan menggunakan **Asia/Kuala_Lumpur**. Keseluruhan logik tarikh berpusat di `src/lib/datetime.ts` â€” jangan panggil `new Date()` secara ad-hoc di tempat lain.
 
 ### Perlindungan tempahan dua kali
 - **DB:** constraint `unique (booking_date, time_slot_id)` pada jadual `bookings`.
@@ -248,13 +248,13 @@ Setiap jadual mendayakan RLS dengan dasar eksplisit:
 - `teachers`, `time_slots`, `blocked_dates`: SELECT awam; tulis hanya `admin`.
 - `bookings`: SELECT + INSERT awam (tanpa log masuk); UPDATE/DELETE hanya `admin`.
 - `profiles`: pengguna hanya boleh SELECT baris sendiri; pentadbir SELECT/UPDATE semua.
-- `users`, `sessions`: **tiada dasar** — hash kata laluan dan token sesi tidak boleh dibaca terus. Semua capaian melalui fungsi security-definer.
+- `users`, `sessions`: **tiada dasar** â€” hash kata laluan dan token sesi tidak boleh dibaca terus. Semua capaian melalui fungsi security-definer.
 
-**Pengurusan akaun & operasi pentadbir** kini melalui fungsi RPC (`public.login`, `public.admin_*`) yang `security definer`. Setiap fungsi pentadbir mengesahkan token sesi (`public.token_user`) dan memerlukan peranan `admin` di peringkat pangkalan data — **bukan hanya di bahagian hadapan**.
+**Pengurusan akaun & operasi pentadbir** kini melalui fungsi RPC (`public.login`, `public.admin_*`) yang `security definer`. Setiap fungsi pentadbir mengesahkan token sesi (`public.token_user`) dan memerlukan peranan `admin` di peringkat pangkalan data â€” **bukan hanya di bahagian hadapan**.
 
 ### PWA
-- Manifest: nama "Sistem Tempahan Makmal Komputer", `display: standalone`, ikon 192/512 (placeholder dijana oleh `node scripts/generate-icons.mjs`).
-- Service worker (`vite-plugin-pwa`, `registerType: 'autoUpdate'`) mengcache aset statik (app-shell luar talian). Panggilan API Supabase **tidak** diagregat-cache — sentiasa segar.
+- Manifest: nama "Sistem Tempahan Bilik ICT", `display: standalone`, ikon 192/512 (placeholder dijana oleh `node scripts/generate-icons.mjs`).
+- Service worker (`vite-plugin-pwa`, `registerType: 'autoUpdate'`) mengcache aset statik (app-shell luar talian). Panggilan API Supabase **tidak** diagregat-cache â€” sentiasa segar.
 - Pemasangan memerlukan HTTPS (disediakan oleh Vercel).
 
 ### Kata laluan yang kukuh & keselamatan
@@ -262,3 +262,4 @@ Setiap jadual mendayakan RLS dengan dasar eksplisit:
 - Kekunci `anon` hanya untuk operasi yang dibenarkan oleh RLS.
 - Kata laluan disimpan sebagai hash **bcrypt** (`gen_salt('bf', 10)`) dan tidak pernah dipulangkan/didedahkan oleh mana-mana RPC.
 - Tukar kata laluan lalai pentadbir sebaik sahaja log masuk kali pertama.
+

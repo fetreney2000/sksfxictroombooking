@@ -103,7 +103,7 @@ export function LoginPage() {
             <MonitorSmartphone className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">Sistem Tempahan Makmal Komputer</h1>
+            <h1 className="text-xl font-bold">Sistem Tempahan Bilik ICT</h1>
             <p className="text-sm text-muted-foreground">Log masuk untuk penyelia dan pentadbir</p>
           </div>
         </div>

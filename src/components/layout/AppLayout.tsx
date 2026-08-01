@@ -72,7 +72,7 @@ export function AppLayout() {
           <MonitorSmartphone className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-sm font-bold leading-tight">Tempahan Makmal</p>
+          <p className="text-sm font-bold leading-tight">Tempahan Bilik ICT</p>
           <p className="text-xs text-muted-foreground">Sistem Tempahan</p>
         </div>
       </div>

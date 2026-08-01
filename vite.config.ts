@@ -12,9 +12,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
-        name: 'Sistem Tempahan Makmal Komputer',
-        short_name: 'Tempahan Makmal',
-        description: 'Sistem tempahan slot masa Makmal Komputer untuk guru',
+        name: 'Sistem Tempahan Bilik ICT',
+        short_name: 'Tempahan Bilik ICT',
+        description: 'Sistem tempahan slot masa Bilik ICT untuk guru',
         theme_color: '#1d4ed8',
         background_color: '#f8fafc',
         display: 'standalone',

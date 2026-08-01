@@ -1,4 +1,4 @@
--- Sistem Tempahan Makmal Komputer
+﻿-- Sistem Tempahan Bilik ICT
 -- Migration 00003: Seed data (12 time slots + sample teachers)
 -- Idempotent: safe to run multiple times.
 
@@ -34,3 +34,4 @@ where not exists (select 1 from public.teachers);
 
 -- Refresh the PostgREST schema cache so newly created tables are queryable immediately.
 select pg_notify('pgrst', 'reload schema');
+

@@ -1,4 +1,4 @@
--- Sistem Tempahan Makmal Komputer
+﻿-- Sistem Tempahan Bilik ICT
 -- Migration 00001: Initial schema
 
 -- profiles: extends auth.users with a role
@@ -48,3 +48,4 @@ create table if not exists public.bookings (
 );
 
 create index if not exists idx_bookings_date on public.bookings(booking_date);
+

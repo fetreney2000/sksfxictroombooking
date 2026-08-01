@@ -1,5 +1,5 @@
--- ============================================================
--- Sistem Tempahan Makmal Komputer - FULL SETUP (jalankan semua)
+﻿-- ============================================================
+-- Sistem Tempahan Bilik ICT - FULL SETUP (jalankan semua)
 -- Gabungan migrasi 00001-00004 + muat semula cache skema PostgREST
 -- Selamat dijalankan berulang kali (idempotent).
 -- ============================================================
@@ -8,7 +8,7 @@
 -- ---------------------------------------------------------------------------
 -- Sumber: supabase\migrations\20260801000001_init.sql
 -- ---------------------------------------------------------------------------
--- Sistem Tempahan Makmal Komputer
+-- Sistem Tempahan Bilik ICT
 -- Migration 00001: Initial schema
 
 -- profiles: extends auth.users with a role
@@ -63,7 +63,7 @@ create index if not exists idx_bookings_date on public.bookings(booking_date);
 -- ---------------------------------------------------------------------------
 -- Sumber: supabase\migrations\20260801000002_rls.sql
 -- ---------------------------------------------------------------------------
--- Sistem Tempahan Makmal Komputer
+-- Sistem Tempahan Bilik ICT
 -- Migration 00002: Row Level Security policies + auth helper
 
 -- Enable RLS on every table
@@ -249,7 +249,7 @@ grant all on table public.bookings to service_role;
 -- ---------------------------------------------------------------------------
 -- Sumber: supabase\migrations\20260801000003_seed.sql
 -- ---------------------------------------------------------------------------
--- Sistem Tempahan Makmal Komputer
+-- Sistem Tempahan Bilik ICT
 -- Migration 00003: Seed data (12 time slots + sample teachers)
 -- Idempotent: safe to run multiple times.
 
@@ -290,7 +290,7 @@ select pg_notify('pgrst', 'reload schema');
 -- ---------------------------------------------------------------------------
 -- Sumber: supabase\migrations\20260801000004_custom_auth.sql
 -- ---------------------------------------------------------------------------
--- Sistem Tempahan Makmal Komputer
+-- Sistem Tempahan Bilik ICT
 -- Migration 00004: Custom username/password auth
 --
 -- Replaces Supabase Auth email/password with an application-managed
@@ -298,7 +298,7 @@ select pg_notify('pgrst', 'reload schema');
 -- extension (`extensions.crypt(password, extensions.gen_salt('bf', 10))`).
 --
 -- Access model:
---   * No RLS policies on `users` / `sessions` â€” hashes must never be
+--   * No RLS policies on `users` / `sessions` Ã¢â‚¬â€ hashes must never be
 --     readable directly. ALL access goes through security-definer RPCs.
 --   * `login(username, password)` verifies the bcrypt hash and issues a
 --     random session token stored in `sessions`.
@@ -797,3 +797,4 @@ grant execute on function public.admin_delete_booking(uuid, uuid) to anon, authe
 
 -- Refresh the PostgREST schema cache.
 select pg_notify('pgrst', 'reload schema');
+

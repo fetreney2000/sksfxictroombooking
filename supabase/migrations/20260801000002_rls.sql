@@ -1,4 +1,4 @@
--- Sistem Tempahan Makmal Komputer
+﻿-- Sistem Tempahan Bilik ICT
 -- Migration 00002: Row Level Security policies + auth helper
 
 -- Enable RLS on every table
@@ -179,3 +179,4 @@ grant all on table public.teachers to service_role;
 grant all on table public.time_slots to service_role;
 grant all on table public.blocked_dates to service_role;
 grant all on table public.bookings to service_role;
+
