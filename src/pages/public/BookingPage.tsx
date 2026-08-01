@@ -37,7 +37,7 @@ export function BookingPage() {
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-bold sm:text-2xl">Tempah Slot Makmal Komputer</h2>
+        <h2 className="text-xl font-bold sm:text-2xl">Tempah Slot Bilik ICT</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Sila lengkapkan 4 langkah di bawah untuk membuat tempahan.
         </p>
