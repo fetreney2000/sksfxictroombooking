@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -125,7 +124,6 @@ export function LoginPage() {
                   <Label htmlFor="bootstrap-username">Nama Pengguna</Label>
                   <Input
                     id="bootstrap-username"
-                    placeholder="cth. admin"
                     autoComplete="off"
                     {...bootstrapForm.register('username')}
                   />
@@ -138,7 +136,6 @@ export function LoginPage() {
                   <Input
                     id="bootstrap-password"
                     type="password"
-                    placeholder="Sekurang-kurangnya 6 aksara"
                     {...bootstrapForm.register('password')}
                   />
                   {bootstrapForm.formState.errors.password && (
@@ -147,7 +144,7 @@ export function LoginPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bootstrap-name">Nama Penuh</Label>
-                  <Input id="bootstrap-name" placeholder="cth. Pentadbir Sistem" {...bootstrapForm.register('fullName')} />
+                  <Input id="bootstrap-name" {...bootstrapForm.register('fullName')} />
                   {bootstrapForm.formState.errors.fullName && (
                     <p className="text-sm text-destructive">{bootstrapForm.formState.errors.fullName.message}</p>
                   )}
@@ -179,7 +176,6 @@ export function LoginPage() {
                 <Input
                   id="username"
                   autoComplete="username"
-                  placeholder="nama_pengguna"
                   {...form.register('username')}
                   aria-invalid={Boolean(form.formState.errors.username)}
                 />
@@ -193,7 +189,6 @@ export function LoginPage() {
                   id="password"
                   type="password"
                   autoComplete="current-password"
-                  placeholder="••••••••"
                   {...form.register('password')}
                   aria-invalid={Boolean(form.formState.errors.password)}
                 />
@@ -216,15 +211,6 @@ export function LoginPage() {
             </form>
           </CardContent>
         </Card>
-
-        {!needsBootstrap && (
-          <>
-            <Separator />
-            <p className="text-center text-xs text-muted-foreground">
-              Tiada pendaftaran awam. Akaun dicipta oleh pentadbir melalui halaman Urus Pengguna.
-            </p>
-          </>
-        )}
       </div>
     </div>
   )
