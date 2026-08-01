@@ -140,15 +140,17 @@ export function AppLayout() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-9 gap-2 px-2">
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                    {profile.full_name.charAt(0).toUpperCase()}
+                    {(profile.full_name || profile.username || '?').charAt(0).toUpperCase()}
                   </span>
-                  <span className="hidden text-sm font-medium sm:inline">{profile.full_name}</span>
+                  <span className="hidden text-sm font-medium sm:inline">
+                    {profile.full_name || profile.username}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col gap-1">
-                    <span>{profile.full_name}</span>
+                    <span>{profile.full_name || profile.username}</span>
                     <Badge variant={isAdmin ? 'default' : 'secondary'} className="w-fit">
                       {isAdmin ? 'Pentadbir' : 'Penyelia'}
                     </Badge>

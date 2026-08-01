@@ -15,7 +15,10 @@ export async function loginWithUsername(username: string, password: string): Pro
   })
   if (error) throw error
   if (!data) throw new Error(INVALID_CREDENTIALS)
-  return { token: data.token, user: data.user }
+  return {
+    token: data.token,
+    user: { ...data.user, full_name: data.user.full_name || data.user.username },
+  }
 }
 
 export async function me(token: string): Promise<AuthUser | null> {

@@ -9,6 +9,11 @@ export interface AuthUser {
   role: 'admin' | 'supervisor'
 }
 
+/** Ensure the user object always carries a displayable full_name. */
+function normalizeUser(user: AuthUser): AuthUser {
+  return { ...user, full_name: user.full_name || user.username }
+}
+
 interface AuthState {
   token: string | null
   user: AuthUser | null
@@ -18,13 +23,17 @@ interface AuthState {
   hydrate: () => Promise<void>
 }
 
+const DEFAULT_STATE = {
+  token: null as string | null,
+  user: null as AuthUser | null,
+  hydrated: false,
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      token: null,
-      user: null,
-      hydrated: false,
-      setSession: (token, user) => set({ token, user, hydrated: true }),
+      ...DEFAULT_STATE,
+      setSession: (token, user) => set({ token, user: normalizeUser(user), hydrated: true }),
       clearSession: () => set({ token: null, user: null, hydrated: true }),
       hydrate: async () => {
         const { token } = get()
@@ -35,7 +44,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           const user = await me(token)
           if (user) {
-            set({ user, hydrated: true })
+            set({ user: normalizeUser(user), hydrated: true })
           } else {
             set({ token: null, user: null, hydrated: true })
           }
@@ -45,6 +54,26 @@ export const useAuthStore = create<AuthState>()(
         }
       },
     }),
-    { name: 'tempahan-auth' },
+    {
+      name: 'tempahan-auth',
+      version: 2,
+      migrate: (persistedState) => {
+        const state = persistedState as Partial<AuthState> | undefined
+        const user = state?.user
+        // Keep the session only if it is structurally valid; otherwise discard
+        // it so the user logs in again with a clean session.
+        if (
+          state?.token &&
+          user &&
+          typeof user.id === 'string' &&
+          typeof user.username === 'string' &&
+          typeof user.full_name === 'string' &&
+          (user.role === 'admin' || user.role === 'supervisor')
+        ) {
+          return { token: state.token, user: normalizeUser(user), hydrated: false }
+        }
+        return { ...DEFAULT_STATE }
+      },
+    },
   ),
 )

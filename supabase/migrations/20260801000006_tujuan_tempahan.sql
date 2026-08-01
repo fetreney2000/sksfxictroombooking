@@ -107,16 +107,16 @@ grant execute on function public.admin_delete_tujuan_tempahan(uuid, uuid) to ano
 insert into public.tujuan_tempahan (name)
 select v.name
 from (values
-  ('Kelas PdPc TMK'),
-  ('Kelas PdPc Bahasa Melayu'),
-  ('Kelas PdPc Bahasa Inggeris'),
-  ('Kelas PdPc Matematik'),
-  ('Kelas PdPc Sains'),
+  ('Kelas PdPc'),
+  ('Kelas Tambahan'),
+  ('Kursus / Seminar'),
   ('Ujian Amali'),
   ('Peperiksaan Online'),
   ('Bengkel ICT'),
   ('Latihan Guru'),
-  ('Program Sekolah')
+  ('Program Sekolah'),
+  ('Mesyuarat / Taklimat'),
+  ('Lain-lain')
 ) as v(name)
 where not exists (select 1 from public.tujuan_tempahan);
 
