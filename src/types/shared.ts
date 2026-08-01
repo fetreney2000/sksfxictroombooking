@@ -5,6 +5,7 @@ export type Role = 'admin' | 'supervisor'
 export type Profile = Tables<'profiles'>
 export type Teacher = Tables<'teachers'>
 export type TimeSlot = Tables<'time_slots'>
+export type Kelas = Tables<'kelas'>
 export type BlockedDate = Tables<'blocked_dates'>
 export type Booking = Tables<'bookings'>
 

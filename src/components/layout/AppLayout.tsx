@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { BarChart3, CalendarDays, CalendarX2, FileDown, LogOut, Menu, MonitorSmartphone, Table2, UserCog, Users, X } from 'lucide-react'
+import { BarChart3, CalendarDays, CalendarX2, FileDown, LogOut, Menu, MonitorSmartphone, School, Table2, UserCog, Users, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCurrentUser, signOut } from '@/hooks/useAuth'
 import { Badge } from '@/components/ui/badge'
@@ -30,6 +30,7 @@ function buildNavItems(base: string, isAdmin: boolean): NavItem[] {
   if (isAdmin) {
     items.push(
       { to: '/admin/teachers', label: 'Urus Guru', icon: Users },
+      { to: '/admin/kelas', label: 'Urus Kelas', icon: School },
       { to: '/admin/slots', label: 'Urus Slot Masa', icon: CalendarDays },
       { to: '/admin/housekeeping', label: 'Urus Tarikh', icon: CalendarX2 },
       { to: '/admin/users', label: 'Urus Pengguna', icon: UserCog },
@@ -43,6 +44,7 @@ const pageTitles: Record<string, string> = {
   bookings: 'Semua Tempahan',
   reports: 'Laporan',
   teachers: 'Urus Guru',
+  kelas: 'Urus Kelas',
   slots: 'Urus Slot Masa',
   housekeeping: 'Urus Tarikh',
   users: 'Urus Pengguna',

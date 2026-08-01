@@ -32,6 +32,12 @@ const TEACHERS = [
 
 const BLOCKED = [{ id: 'b-1', blocked_date: '2026-08-05', reason: 'Cuti perayaan', created_at: '2026-01-01T00:00:00.000Z' }]
 
+const KELAS = [
+  { id: '11111111-3333-4111-8111-000000000001', name: '5 Cerdik', is_active: true, created_at: '2026-01-01T00:00:00.000Z' },
+  { id: '11111111-3333-4111-8111-000000000002', name: '4 Amanah', is_active: true, created_at: '2026-01-01T00:00:00.000Z' },
+  { id: '11111111-3333-4111-8111-000000000003', name: '5 Bijak', is_active: true, created_at: '2026-01-01T00:00:00.000Z' },
+]
+
 // Track which slots are "booked" for the chosen date in the mock.
 const mockBookings = new Map()
 
@@ -102,6 +108,7 @@ async function main() {
       let payload = null
       if (path.endsWith('/time_slots')) payload = SLOTS
       else if (path.endsWith('/teachers')) payload = TEACHERS
+      else if (path.endsWith('/kelas')) payload = KELAS
       else if (path.endsWith('/blocked_dates')) payload = BLOCKED
       else if (path.endsWith('/bookings') && method === 'GET') {
         const date = u.searchParams.get('booking_date')?.replace('eq.', '')
@@ -208,7 +215,7 @@ async function main() {
 
   const afterSelect = await page.evaluate(() => {
     const input = document.querySelector('#teacherId')
-    const classInput = document.querySelector('#className')
+    const classInput = document.querySelector('#kelas')
     return {
       comboLabel: input ? input.value : 'no-input',
       classNameValue: classInput ? classInput.value : 'no-input',
@@ -217,7 +224,14 @@ async function main() {
   console.log(`STEP3: combobox value after select="${afterSelect.comboLabel}"`)
   console.log(`STEP3: className input value="${afterSelect.classNameValue}"`)
 
-  await page.type('#className', '5 Cerdik')
+  // Select class from the kelas combobox
+  await page.click('#kelas')
+  await new Promise((r) => setTimeout(r, 400))
+  await page.keyboard.type('5 Cerdik')
+  await new Promise((r) => setTimeout(r, 400))
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
+  await new Promise((r) => setTimeout(r, 500))
   await page.type('#purpose', 'Kelas PdPc TMK')
   await new Promise((r) => setTimeout(r, 300))
   await clickButton(page, 'Seterusnya')
@@ -303,7 +317,13 @@ async function main() {
   await page.keyboard.press('ArrowDown')
   await page.keyboard.press('Enter')
   await new Promise((r) => setTimeout(r, 400))
-  await page.type('#className', '5 Bijak')
+  await page.click('#kelas')
+  await new Promise((r) => setTimeout(r, 400))
+  await page.keyboard.type('5 Bijak')
+  await new Promise((r) => setTimeout(r, 400))
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
+  await new Promise((r) => setTimeout(r, 400))
   await page.type('#purpose', 'Ujian amali TMK')
   await clickButton(page, 'Seterusnya')
   await new Promise((r) => setTimeout(r, 600))

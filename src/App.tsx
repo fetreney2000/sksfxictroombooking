@@ -9,6 +9,7 @@ import { BookingsListPage } from '@/pages/supervisor/BookingsListPage'
 import { DashboardPage } from '@/pages/supervisor/DashboardPage'
 import { ReportsPage } from '@/pages/supervisor/ReportsPage'
 import { TeachersPage } from '@/pages/admin/TeachersPage'
+import { KelasPage } from '@/pages/admin/KelasPage'
 import { TimeSlotsPage } from '@/pages/admin/TimeSlotsPage'
 import { HousekeepingPage } from '@/pages/admin/HousekeepingPage'
 import { UsersPage } from '@/pages/admin/UsersPage'
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="bookings" element={<BookingsListPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="teachers" element={<TeachersPage />} />
+          <Route path="kelas" element={<KelasPage />} />
           <Route path="slots" element={<TimeSlotsPage />} />
           <Route path="housekeeping" element={<HousekeepingPage />} />
           <Route path="users" element={<UsersPage />} />

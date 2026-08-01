@@ -4,6 +4,7 @@ import { AlertCircle } from 'lucide-react'
 import { bookingDetailsSchema, type BookingDetailsValues } from '@/lib/validators'
 import { useBookingFormStore } from '@/store/bookingFormStore'
 import { useTeachers } from '@/hooks/useTeachers'
+import { useKelas } from '@/hooks/useKelas'
 import {
   Combobox,
   ComboboxContent,
@@ -13,7 +14,6 @@ import {
   ComboboxList,
 } from '@/components/ui/combobox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
@@ -32,6 +32,7 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
   const setPurpose = useBookingFormStore((s) => s.setPurpose)
 
   const { data: teachers, isLoading: teachersLoading, error: teachersError } = useTeachers()
+  const { data: kelasList, isLoading: kelasLoading, error: kelasError } = useKelas()
 
   const form = useForm<BookingDetailsValues>({
     resolver: zodResolver(bookingDetailsSchema),
@@ -58,10 +59,13 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          {teachersError ? (
+          {teachersError || kelasError ? (
             <div className="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>Gagal memuatkan senarai guru: {teachersError.message}</p>
+              <p>
+                Gagal memuatkan senarai {teachersError ? 'guru' : 'kelas'}:
+                {teachersError?.message ?? kelasError?.message}
+              </p>
             </div>
           ) : null}
 
@@ -106,11 +110,39 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="className">Kelas</Label>
-            <Input
-              id="className"
-              {...form.register('className')}
-              aria-invalid={Boolean(form.formState.errors.className)}
+            <Label htmlFor="kelas">Kelas</Label>
+            <Controller
+              control={form.control}
+              name="className"
+              render={({ field }) => {
+                const selectedKelas = kelasList?.find((k) => k.name === field.value) ?? null
+                return (
+                  <Combobox
+                    items={kelasList ?? []}
+                    value={selectedKelas}
+                    onValueChange={(k) => field.onChange(k ? k.name : '')}
+                    itemToStringValue={(k) => k.name}
+                    itemToStringLabel={(k) => k.name}
+                    disabled={kelasLoading}
+                  >
+                    <ComboboxInput
+                      id="kelas"
+                      aria-label="Kelas"
+                      aria-invalid={Boolean(form.formState.errors.className)}
+                    />
+                    <ComboboxContent>
+                      <ComboboxEmpty>Tiada kelas ditemui.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(k) => (
+                          <ComboboxItem key={k.id} value={k}>
+                            {k.name}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
+                )
+              }}
             />
             {form.formState.errors.className && (
               <p className="text-sm text-destructive">{form.formState.errors.className.message}</p>

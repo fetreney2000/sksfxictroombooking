@@ -98,6 +98,27 @@ export interface Database {
         }
         Relationships: []
       }
+      kelas: {
+        Row: {
+          id: string
+          name: string
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           id: string
@@ -260,6 +281,26 @@ export interface Database {
       }
       admin_delete_booking: {
         Args: { p_token: string; p_booking_id: string }
+        Returns: null
+      }
+      admin_save_kelas: {
+        Args: { p_token: string; p_kelas_id: string | null; p_name: string }
+        Returns: null
+      }
+      admin_set_kelas_active: {
+        Args: { p_token: string; p_kelas_id: string; p_is_active: boolean }
+        Returns: null
+      }
+      admin_delete_kelas: {
+        Args: { p_token: string; p_kelas_id: string }
+        Returns: null
+      }
+      admin_create_time_slot: {
+        Args: { p_token: string; p_start_time: string; p_end_time: string }
+        Returns: null
+      }
+      admin_delete_time_slot: {
+        Args: { p_token: string; p_slot_id: string }
         Returns: null
       }
     }
