@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { BarChart3, BookOpenCheck, CalendarDays, CalendarX2, FileDown, LogOut, Menu, MonitorSmartphone, School, Table2, UserCog, Users, X } from 'lucide-react'
+import { BarChart3, BookOpenCheck, CalendarDays, CalendarX2, FileDown, LogOut, MonitorSmartphone, School, Table2, UserCog, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCurrentUser, signOut } from '@/hooks/useAuth'
 import { Badge } from '@/components/ui/badge'
@@ -24,17 +23,17 @@ interface NavItem {
 function buildNavItems(base: string, isAdmin: boolean): NavItem[] {
   const items: NavItem[] = [
     { to: '/dashboard', label: 'Papan Pemuka', icon: BarChart3 },
-    { to: `${base}/bookings`, label: 'Semua Tempahan', icon: Table2 },
+    { to: `${base}/bookings`, label: 'Tempahan', icon: Table2 },
     { to: `${base}/reports`, label: 'Laporan', icon: FileDown },
   ]
   if (isAdmin) {
     items.push(
-      { to: '/admin/teachers', label: 'Urus Guru', icon: Users },
-      { to: '/admin/kelas', label: 'Urus Kelas', icon: School },
-      { to: '/admin/tujuan', label: 'Urus Tujuan', icon: BookOpenCheck },
-      { to: '/admin/slots', label: 'Urus Slot Masa', icon: CalendarDays },
-      { to: '/admin/housekeeping', label: 'Urus Tarikh', icon: CalendarX2 },
-      { to: '/admin/users', label: 'Urus Pengguna', icon: UserCog },
+      { to: '/admin/teachers', label: 'Guru', icon: Users },
+      { to: '/admin/kelas', label: 'Kelas', icon: School },
+      { to: '/admin/tujuan', label: 'Tujuan', icon: BookOpenCheck },
+      { to: '/admin/slots', label: 'Slot', icon: CalendarDays },
+      { to: '/admin/housekeeping', label: 'Tarikh', icon: CalendarX2 },
+      { to: '/admin/users', label: 'Pengguna', icon: UserCog },
     )
   }
   return items
@@ -56,13 +55,13 @@ export function AppLayout() {
   const location = useLocation()
   const navigate = useNavigate()
   const { profile } = useCurrentUser()
-  const [mobileOpen, setMobileOpen] = useState(false)
 
   const isAdmin = profile?.role === 'admin'
   const base = isAdmin ? '/admin' : '/supervisor'
   const navItems = buildNavItems(base, isAdmin)
   const section = location.pathname.split('/')[2] ?? ''
   const title = pageTitles[section] ?? 'Papan Pemuka'
+  const displayName = profile?.full_name || profile?.username || ''
 
   const handleLogout = async () => {
     await signOut()
@@ -85,7 +84,6 @@ export function AppLayout() {
           <NavLink
             key={item.to}
             to={item.to}
-            onClick={() => setMobileOpen(false)}
             className={({ isActive }) =>
               cn(
                 'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
@@ -110,47 +108,24 @@ export function AppLayout() {
     <div className="flex min-h-screen bg-muted/30">
       <aside className="hidden w-60 shrink-0 border-r bg-background lg:block">{SidebarContent}</aside>
 
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-60 border-r bg-background">
-            <button
-              type="button"
-              onClick={() => setMobileOpen(false)}
-              className="absolute right-2 top-2 rounded-md p-1 hover:bg-accent"
-              aria-label="Tutup menu"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            {SidebarContent}
-          </aside>
-        </div>
-      )}
-
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-14 items-center justify-between border-b bg-background px-4">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Buka menu">
-              <Menu className="h-5 w-5" />
-            </Button>
-            <h2 className="text-base font-semibold">{title}</h2>
-          </div>
+          <h2 className="truncate text-base font-semibold">{title}</h2>
           {profile ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-9 gap-2 px-2">
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                    {(profile.full_name || profile.username || '?').charAt(0).toUpperCase()}
+                    {(displayName || '?').charAt(0).toUpperCase()}
                   </span>
-                  <span className="hidden text-sm font-medium sm:inline">
-                    {profile.full_name || profile.username}
-                  </span>
+                  <span className="max-w-[130px] truncate text-sm font-medium">{displayName}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col gap-1">
-                    <span>{profile.full_name || profile.username}</span>
+                    <span>{displayName}</span>
+                    <span className="text-xs text-muted-foreground">@{profile.username}</span>
                     <Badge variant={isAdmin ? 'default' : 'secondary'} className="w-fit">
                       {isAdmin ? 'Pentadbir' : 'Penyelia'}
                     </Badge>
@@ -165,10 +140,34 @@ export function AppLayout() {
             </DropdownMenu>
           ) : null}
         </header>
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="flex-1 p-4 pb-20 sm:p-6 sm:pb-20 lg:pb-6">
           <Outlet />
         </main>
       </div>
+
+      {/* Mobile bottom navigation — covers every item in the desktop navbar */}
+      <nav
+        aria-label="Navigasi utama"
+        className="fixed inset-x-0 bottom-0 z-40 border-t bg-background shadow-[0_-1px_0_rgba(0,0,0,0.05)] lg:hidden"
+      >
+        <div className="flex overflow-x-auto">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                cn(
+                  'flex min-w-[68px] flex-1 flex-col items-center gap-1 px-2 py-2 text-[10px] font-medium transition-colors',
+                  isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
+                )
+              }
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="whitespace-nowrap">{item.label}</span>
+            </NavLink>
+          ))}
+        </div>
+      </nav>
     </div>
   )
 }
