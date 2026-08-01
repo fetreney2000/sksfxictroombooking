@@ -70,8 +70,6 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
                   items={teacherItems}
                   value={field.value || null}
                   onChange={(value) => field.onChange(value ?? '')}
-                  placeholder="Pilih nama guru..."
-                  searchPlaceholder="Cari nama guru..."
                   emptyText="Tiada guru ditemui."
                   loading={teachersLoading}
                   className={form.formState.errors.teacherId ? 'border-destructive' : ''}
@@ -87,7 +85,6 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
             <Label htmlFor="className">Kelas</Label>
             <Input
               id="className"
-              placeholder="Contoh: 5 Cerdik, 4 Amanah"
               {...form.register('className')}
               aria-invalid={Boolean(form.formState.errors.className)}
             />
@@ -100,7 +97,6 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
             <Label htmlFor="purpose">Tujuan Tempahan</Label>
             <Textarea
               id="purpose"
-              placeholder="Contoh: Kelas PdPc TMK"
               rows={4}
               {...form.register('purpose')}
               aria-invalid={Boolean(form.formState.errors.purpose)}

@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from 'cmdk'
 
@@ -15,8 +14,6 @@ interface ComboboxProps {
   items: ComboboxItem[]
   value: string | null
   onChange: (value: string | null) => void
-  placeholder?: string
-  searchPlaceholder?: string
   emptyText?: string
   loading?: boolean
   disabled?: boolean
@@ -27,8 +24,6 @@ export function Combobox({
   items,
   value,
   onChange,
-  placeholder = 'Pilih...',
-  searchPlaceholder = 'Cari...',
   emptyText = 'Tiada keputusan.',
   loading = false,
   disabled = false,
@@ -47,26 +42,31 @@ export function Combobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
+        <button
           type="button"
           role="combobox"
           aria-expanded={open}
+          aria-haspopup="listbox"
           disabled={disabled}
-          className={cn('w-full justify-between font-normal', !selected && 'text-muted-foreground', className)}
+          className={cn(
+            'flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors',
+            'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
+            className,
+          )}
         >
-          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          {selected ? selected.label : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+          {loading ? (
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+          ) : (
+            <span className={cn('truncate', !selected && 'text-muted-foreground')}>
+              {selected ? selected.label : ''}
+            </span>
+          )}
+          <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+        </button>
       </PopoverTrigger>
       <PopoverContent className="w-full min-w-[var(--radix-popover-trigger-width)] p-0" align="start">
         <Command shouldFilter={false}>
-          <CommandInput
-            placeholder={searchPlaceholder}
-            value={query}
-            onValueChange={setQuery}
-            aria-label={searchPlaceholder}
-          />
+          <CommandInput value={query} onValueChange={setQuery} aria-label="Cari" className="h-9" />
           <CommandList>
             <CommandEmpty>{emptyText}</CommandEmpty>
             <CommandGroup>
