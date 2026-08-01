@@ -23,7 +23,7 @@ interface NavItem {
 
 function buildNavItems(base: string, isAdmin: boolean): NavItem[] {
   const items: NavItem[] = [
-    { to: `${base}/dashboard`, label: 'Papan Pemuka', icon: BarChart3 },
+    { to: '/dashboard', label: 'Papan Pemuka', icon: BarChart3 },
     { to: `${base}/bookings`, label: 'Semua Tempahan', icon: Table2 },
     { to: `${base}/reports`, label: 'Laporan', icon: FileDown },
   ]
@@ -55,7 +55,7 @@ export function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const isAdmin = profile?.role === 'admin'
-  const base = location.pathname.startsWith('/admin') ? '/admin' : '/supervisor'
+  const base = isAdmin ? '/admin' : '/supervisor'
   const navItems = buildNavItems(base, isAdmin)
   const section = location.pathname.split('/')[2] ?? ''
   const title = pageTitles[section] ?? 'Papan Pemuka'

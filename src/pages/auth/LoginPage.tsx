@@ -9,7 +9,6 @@ import { loginSchema, bootstrapSchema, type LoginValues, type BootstrapValues } 
 import { loginWithUsername, INVALID_CREDENTIALS } from '@/lib/auth'
 import { useAuthStore } from '@/store/authStore'
 import { useCurrentUser } from '@/hooks/useAuth'
-import type { Role } from '@/types/shared'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -45,13 +44,13 @@ export function LoginPage() {
     refetchOnMount: 'always',
   })
 
-  const goHome = (role: Role) => {
-    navigate(role === 'admin' ? '/admin/dashboard' : '/supervisor/dashboard')
+  const goHome = () => {
+    navigate('/dashboard')
   }
 
   if (isLoading) return null
   if (isAuthenticated && profile) {
-    return <Navigate to={profile.role === 'admin' ? '/admin/dashboard' : '/supervisor/dashboard'} replace />
+    return <Navigate to="/dashboard" replace />
   }
 
   const onSubmit = async (values: LoginValues) => {
@@ -60,7 +59,7 @@ export function LoginPage() {
     try {
       const result = await loginWithUsername(values.username, values.password)
       setSession(result.token, result.user)
-      goHome(result.user.role)
+      goHome()
     } catch (err) {
       setSubmitError(
         err instanceof Error && err.message === INVALID_CREDENTIALS
@@ -83,7 +82,7 @@ export function LoginPage() {
       if (error) throw error
       const result = await loginWithUsername(values.username, values.password)
       setSession(result.token, result.user)
-      goHome(result.user.role)
+      goHome()
     } catch (err) {
       setBootstrapError(
         err instanceof Error && err.message

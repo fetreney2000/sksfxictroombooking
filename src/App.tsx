@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/sonner'
-import { RequireRole } from '@/routes/guards'
+import { RequireRole, RequireAnyRole } from '@/routes/guards'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { BookingPage } from '@/pages/public/BookingPage'
@@ -24,6 +24,17 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
 
         <Route
+          path="/dashboard"
+          element={
+            <RequireAnyRole>
+              <AppLayout />
+            </RequireAnyRole>
+          }
+        >
+          <Route index element={<DashboardPage />} />
+        </Route>
+
+        <Route
           path="/supervisor"
           element={
             <RequireRole role="supervisor">
@@ -31,8 +42,7 @@ export default function App() {
             </RequireRole>
           }
         >
-          <Route index element={<Navigate to="/supervisor/dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardPage />} />
+          <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="bookings" element={<BookingsListPage />} />
           <Route path="reports" element={<ReportsPage />} />
         </Route>
@@ -45,8 +55,7 @@ export default function App() {
             </RequireRole>
           }
         >
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardPage />} />
+          <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="bookings" element={<BookingsListPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="teachers" element={<TeachersPage />} />

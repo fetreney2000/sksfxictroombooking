@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer-core'
+﻿import puppeteer from 'puppeteer-core'
 
 const BASE = 'http://localhost:5173'
 const EDGE = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
@@ -177,10 +177,10 @@ async function main() {
 
   // ------------------------------------------------------------
   // TEST 1: unauthenticated guard redirect
-  await page.goto(`${BASE}/admin/dashboard`, { waitUntil: 'networkidle2', timeout: 30000 })
+  await page.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle2', timeout: 30000 })
   await new Promise((r) => setTimeout(r, 1000))
   let url = page.url()
-  console.log(`GUARD: /admin/dashboard -> ${url.replace(BASE, '')} (redirect=${url.includes('/login')})`)
+  console.log(`GUARD: /dashboard -> ${url.replace(BASE, '')} (redirect=${url.includes('/login')})`)
 
   // TEST 2: bootstrap card visible (no users yet)
   let text = await page.evaluate(() => document.body.innerText)
@@ -202,7 +202,7 @@ async function main() {
   await new Promise((r) => setTimeout(r, 2000))
   url = page.url()
   text = await page.evaluate(() => document.body.innerText)
-  console.log(`BOOTSTRAP: redirected to dashboard=${url.includes('/admin/dashboard')}`)
+  console.log(`BOOTSTRAP: redirected to dashboard=${url.includes('/dashboard')}`)
   console.log(`BOOTSTRAP: dashboard renders=${text.includes('Papan Pemuka')}`)
 
   // TEST 4: logout via user menu (real mouse clicks so Radix opens)
@@ -260,9 +260,9 @@ async function main() {
   })
   await new Promise((r) => setTimeout(r, 2000))
   url = page.url()
-  console.log(`LOGIN: redirected to dashboard=${url.includes('/admin/dashboard')} (url=${url.replace(BASE, '')})`)
+  console.log(`LOGIN: redirected to dashboard=${url.includes('/dashboard')} (url=${url.replace(BASE, '')})`)
 
-  // TEST 7: users page — create a supervisor account
+  // TEST 7: users page â€” create a supervisor account
   await page.goto(`${BASE}/admin/users`, { waitUntil: 'networkidle2', timeout: 30000 })
   await new Promise((r) => setTimeout(r, 1500))
   text = await page.evaluate(() => document.body.innerText)
@@ -284,7 +284,7 @@ async function main() {
   text = await page.evaluate(() => document.body.innerText)
   console.log(`USERS: new supervisor listed=${text.includes('penyelia1') && text.includes('Cikgu Penyelia')}`)
 
-  // TEST 8: supervisor guard — penyelia1 cannot access /admin
+  // TEST 8: supervisor guard â€” penyelia1 cannot access /admin
   // (clear the admin session, then log in as the new supervisor)
   await page.evaluate(() => localStorage.removeItem('tempahan-auth'))
   await page.goto(`${BASE}/login`, { waitUntil: 'networkidle2', timeout: 30000 })
@@ -300,9 +300,9 @@ async function main() {
   await new Promise((r) => setTimeout(r, 2000))
   url = page.url()
   text = await page.evaluate(() => document.body.innerText)
-  console.log(`SUPERVISOR: login redirects to /supervisor/dashboard=${url.includes('/supervisor/dashboard')} (url=${url.replace(BASE, '')})`)
+  console.log(`SUPERVISOR: login redirects to /dashboard=${url.includes('/dashboard')} (url=${url.replace(BASE, '')})`)
 
-  // Supervisor tries /admin/users -> guard should bounce to /supervisor/dashboard
+  // Supervisor tries /admin/users -> guard should bounce to /dashboard
   await page.goto(`${BASE}/admin/users`, { waitUntil: 'networkidle2', timeout: 30000 })
   await new Promise((r) => setTimeout(r, 1500))
   url = page.url()
@@ -322,3 +322,4 @@ main().catch((err) => {
   console.error('AUTH E2E FAILED:', err.message)
   process.exit(1)
 })
+

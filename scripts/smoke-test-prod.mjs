@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer-core'
+﻿import puppeteer from 'puppeteer-core'
 
 const BASE = 'http://localhost:4173'
 const EDGE = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
@@ -27,10 +27,10 @@ async function main() {
   console.log(`LOGIN: renders=${text.includes('Log Masuk')}`)
 
   // Route guard: unauthenticated /supervisor redirects to /login
-  await page.goto(`${BASE}/supervisor/dashboard`, { waitUntil: 'networkidle2', timeout: 30000 })
+  await page.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle2', timeout: 30000 })
   await new Promise((r) => setTimeout(r, 1200))
   const url = page.url()
-  console.log(`GUARD: /supervisor/dashboard -> ${url.replace(BASE, '')} (redirect to login=${url.includes('/login')})`)
+  console.log(`GUARD: /dashboard -> ${url.replace(BASE, '')} (redirect to login=${url.includes('/login')})`)
 
   // PWA: service worker registered after load
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle2', timeout: 30000 })
@@ -52,3 +52,4 @@ main().catch((err) => {
   console.error('PROD SMOKE TEST FAILED:', err.message)
   process.exit(1)
 })
+

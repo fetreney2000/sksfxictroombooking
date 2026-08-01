@@ -45,20 +45,32 @@ interface RequireRoleProps {
   children: ReactNode
 }
 
-export function RequireRole({ role, children }: RequireRoleProps) {
+function useGuardState() {
   const { session, profile, isLoading, error, isAuthenticated } = useCurrentUser()
-
   if (isLoading || (isAuthenticated && !profile && !error)) {
-    return <FullScreenLoader />
+    return { node: <FullScreenLoader /> }
   }
   if (!session) {
-    return <Navigate to="/login" replace state={{ from: window.location.pathname }} />
+    return { node: <Navigate to="/login" replace state={{ from: window.location.pathname }} /> }
   }
   if (!profile) {
-    return <ProfileErrorCard />
+    return { node: <ProfileErrorCard /> }
   }
-  if (profile.role !== role) {
-    return <Navigate to={profile.role === 'admin' ? '/admin/dashboard' : '/supervisor/dashboard'} replace />
+  return { session, profile }
+}
+
+export function RequireRole({ role, children }: RequireRoleProps) {
+  const { node, profile } = useGuardState()
+  if (node) return node
+  if (profile!.role !== role) {
+    return <Navigate to="/dashboard" replace />
   }
+  return <>{children}</>
+}
+
+/** Guards a route that any authenticated user (admin or supervisor) may access. */
+export function RequireAnyRole({ children }: { children: ReactNode }) {
+  const { node } = useGuardState()
+  if (node) return node
   return <>{children}</>
 }
