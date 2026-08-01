@@ -41,7 +41,7 @@ Semua keupayaan Penyelia, tambahan:
 - **Urus Guru:** tambah, sunting, aktif/tidak aktif, padam.
 - **Urus Slot Masa:** ubah masa mula/tamat, aktif/tidak aktif, susun semula.
 - **Urus Tarikh:** sekat/buka tarikh (cuti, hari peperiksaan) + sunting/padam mana-mana tempahan.
-- **Urus Pengguna:** senarai akaun penyelia/pentadbir dan ubah peranan.
+- **Urus Pengguna:** cipta akaun penyelia/pentadbir (nama pengguna + kata laluan) dan urus peranan, status serta kata laluan.
 
 ---
 
@@ -58,7 +58,8 @@ Semua keupayaan Penyelia, tambahan:
 | UI | shadcn/ui |
 | Table | TanStack Table v8 |
 | Chart | recharts |
-| Backend/DB/Auth | Supabase (pelan percuma) |
+| Backend/DB | Supabase (pelan percuma) |
+| Auth | Jadual `users` sendiri (nama pengguna + kata laluan, hash **bcrypt** via `pgcrypto`, token sesi) |
 | Tarikh/Masa | date-fns + date-fns-tz |
 | PWA | vite-plugin-pwa |
 
@@ -117,10 +118,11 @@ supabase db push
    - `supabase/migrations/20260801000001_init.sql`
    - `supabase/migrations/20260801000002_rls.sql`
    - `supabase/migrations/20260801000003_seed.sql`
+   - `supabase/migrations/20260801000004_custom_auth.sql`
 
    > **Jika anda mendapat ralat "Could not find the table 'public.time_slots' in the schema cache"**, ini bermaksud jadual belum wujud atau cache PostgREST belum dimuat semula. Jalankan semula `supabase/full_setup.sql` (ia idempotent) atau jalankan `select pg_notify('pgrst', 'reload schema');` dalam SQL Editor.
 
-Migrasi ini mencipta jadual (`profiles`, `teachers`, `time_slots`, `blocked_dates`, `bookings`), **Row Level Security** untuk setiap jadual, trigger auto-profil apabila pengguna auth dicipta, dan data asas (12 slot masa + 6 guru contoh).
+Migrasi ini mencipta jadual (`profiles`, `teachers`, `time_slots`, `blocked_dates`, `bookings`, `users`, `sessions`), **Row Level Security** untuk setiap jadual, fungsi RPC (log masuk, pengurusan pengguna, dan semua operasi pentadbir), dan data asas (12 slot masa + 6 guru contoh).
 
 ### Kekunci API
 
@@ -129,22 +131,21 @@ Migrasi ini mencipta jadual (`profiles`, `teachers`, `time_slots`, `blocked_date
 3. Salin **anon public key** ke `VITE_SUPABASE_ANON_KEY`.
 4. (Pilihan) Salin `service_role` jika perlu — **jangan dedahkan kepada pelanggan**.
 
-### Pengguna pertama (Pentadbir bootstrap)
+### Log masuk: nama pengguna + kata laluan (bcrypt)
 
-Tiada pendaftaran awam. Semua akaun penyelia/pentadbir dicipta oleh pentadbir:
+Sistem menggunakan **jadual `users` sendiri** (bukan Supabase Auth email/password). Kata laluan disimpan sebagai hash **bcrypt** melalui sambungan `pgcrypto` (`crypt(password, gen_salt('bf', 10))`).
 
-1. Pergi ke **Authentication → Users → Add user** dan cipta pengguna pertama (e-mel + kata laluan).
-2. Trigger `on_auth_user_created` secara automatik mencipta profil **Pentadbir** untuk pengguna **pertama** (pengguna seterusnya menjadi Penyelia secara automatik).
-3. Log masuk di `/login` menggunakan akaun tersebut.
+**Akaun pentadbir pertama (bootstrap):** Buka `/login` — jika belum ada pengguna, borang "Persediaan Akaun Pentadbir Pertama" muncul untuk mencipta pentadbir pertama. Atau jalankan dalam SQL Editor:
 
-> **Sekiranya pengguna pertama perlu dijadikan Pentadbir secara manual** (cth. profil telah wujud sebelum trigger dipasang):
-> ```sql
-> update public.profiles set role = 'admin' where id = '<user-uuid>';
-> ```
+```sql
+select public.bootstrap_admin('admin', 'KATA_LALUAN', 'Pentadbir Sistem');
+```
 
-### Nota: pengurusan akaun baharu
+**Akaun seterusnya:** dicipta oleh pentadbir melalui halaman **Urus Pengguna** (nama pengguna, kata laluan, nama penuh, peranan Penyelia/Pentadbir). Tiada pendaftaran awam.
 
-Pengurusan pengguna (Urus Pengguna) melaksanakan pendekatan **fallback** yang dibenarkan oleh spesifikasi: akaun baharu dicipta dalam **Supabase Dashboard (Authentication → Users)**, dan peranan (Penyelia/Pentadbir) ditetapkan melalui borang **"Ubah Peranan"** dalam aplikasi yang hanya menulis ke jadual `profiles`. Tiada Edge Function diperlukan.
+Log masuk menggunakan nama pengguna + kata laluan. Sesi disimpan sebagai token rawak dalam jadual `sessions` (tamat tempoh 7 hari) dan disimpan di pelayar.
+
+> **Penting:** hash kata laluan **tidak pernah** didedahkan — jadual `users` tidak mempunyai sebarang dasar RLS; semua capaian melalui fungsi security-definer (`login`, `admin_*`). Semua operasi pentadbir mengesahkan token sesi dan peranan `admin` di peringkat pangkalan data.
 
 ---
 
@@ -203,6 +204,7 @@ scripts/         # generate-icons.mjs, test-datetime.ts, smoke tests
 | `npm run test:datetime` | Ujian utiliti tarikh/masa (zon Asia/Kuala_Lumpur) |
 | `npm run generate:icons` | Jana ikon PWA placeholder |
 | `node scripts/e2e-booking.mjs` | Ujian E2E aliran tempahan awam (mock Supabase, perlukan `npm run dev`) |
+| `node scripts/e2e-auth.mjs` | Ujian E2E log masuk (bootstrap pentadbir, log masuk/keluar, peranan, guard) |
 
 ---
 
@@ -218,7 +220,7 @@ scripts/         # generate-icons.mjs, test-datetime.ts, smoke tests
 Butang **Kosongkan Borang** memadam semua maklumat dan kembali ke Langkah 1 (dengan dialog pengesahan jika ada data).
 
 ### Penyelia
-- Log masuk di `/login`.
+- Log masuk di `/login` menggunakan **nama pengguna dan kata laluan**.
 - **Papan Pemuka:** ringkasan statistik dan carta.
 - **Semua Tempahan:** carian, tapisan tarikh, isihan lajur, pembahagian halaman.
 - **Laporan:** tetapkan tapisan dan muat turun **Eksport CSV**.
@@ -228,7 +230,7 @@ Semua keupayaan Penyelia, tambahan:
 - **Urus Guru:** tambah/sunting/aktifkan/nyahaktifkan/padam guru.
 - **Urus Slot Masa:** ubah masa, aktif/tidak aktif, susun semula slot.
 - **Urus Tarikh:** sekat/buka tarikh; sunting/padam tempahan.
-- **Urus Pengguna:** ubah peranan akaun (Penyelia/Pentadbir). Akaun baharu dicipta di Supabase Dashboard.
+- **Urus Pengguna:** cipta akaun (nama pengguna + kata laluan), ubah nama, peranan, status aktif, dan kata laluan.
 
 ---
 
@@ -246,8 +248,9 @@ Setiap jadual mendayakan RLS dengan dasar eksplisit:
 - `teachers`, `time_slots`, `blocked_dates`: SELECT awam; tulis hanya `admin`.
 - `bookings`: SELECT + INSERT awam (tanpa log masuk); UPDATE/DELETE hanya `admin`.
 - `profiles`: pengguna hanya boleh SELECT baris sendiri; pentadbir SELECT/UPDATE semua.
+- `users`, `sessions`: **tiada dasar** — hash kata laluan dan token sesi tidak boleh dibaca terus. Semua capaian melalui fungsi security-definer.
 
-Peranan disemak melalui fungsi `public.is_admin()` (security definer) di peringkat pangkalan data — **bukan hanya di bahagian hadapan**.
+**Pengurusan akaun & operasi pentadbir** kini melalui fungsi RPC (`public.login`, `public.admin_*`) yang `security definer`. Setiap fungsi pentadbir mengesahkan token sesi (`public.token_user`) dan memerlukan peranan `admin` di peringkat pangkalan data — **bukan hanya di bahagian hadapan**.
 
 ### PWA
 - Manifest: nama "Sistem Tempahan Makmal Komputer", `display: standalone`, ikon 192/512 (placeholder dijana oleh `node scripts/generate-icons.mjs`).
@@ -257,3 +260,5 @@ Peranan disemak melalui fungsi `public.is_admin()` (security definer) di peringk
 ### Kata laluan yang kukuh & keselamatan
 - Jangan sekali-kali komit `.env` atau kekunci sebenar. Gunakan pemboleh ubah persekitaran Vercel untuk pengeluaran.
 - Kekunci `anon` hanya untuk operasi yang dibenarkan oleh RLS.
+- Kata laluan disimpan sebagai hash **bcrypt** (`gen_salt('bf', 10)`) dan tidak pernah dipulangkan/didedahkan oleh mana-mana RPC.
+- Tukar kata laluan lalai pentadbir sebaik sahaja log masuk kali pertama.

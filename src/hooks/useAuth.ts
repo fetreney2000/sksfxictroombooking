@@ -1,68 +1,39 @@
-import { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import type { Session } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabaseClient'
-import type { Profile } from '@/types/shared'
+import { useAuthStore } from '@/store/authStore'
+import { logoutRemote } from '@/lib/auth'
 
 export function useAuth() {
-  const [session, setSession] = useState<Session | null>(null)
-  const [initializing, setInitializing] = useState(true)
+  const token = useAuthStore((s) => s.token)
+  const user = useAuthStore((s) => s.user)
+  const hydrated = useAuthStore((s) => s.hydrated)
 
-  useEffect(() => {
-    let active = true
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        if (!active) return
-        setSession(data.session)
-        setInitializing(false)
-      })
-      .catch(() => {
-        if (!active) return
-        setInitializing(false)
-      })
-
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
-    })
-    return () => {
-      active = false
-      subscription.subscription.unsubscribe()
-    }
-  }, [])
-
-  return { session, initializing }
-}
-
-export function useProfile(userId: string | undefined) {
-  return useQuery({
-    queryKey: ['profile', userId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId!)
-        .single()
-      if (error) throw error
-      return data as Profile
-    },
-    enabled: Boolean(userId),
-    staleTime: 60_000,
-  })
+  return {
+    session: token ? { token, user } : null,
+    initializing: !hydrated,
+  }
 }
 
 export function useCurrentUser() {
-  const { session } = useAuth()
-  const { data: profile, isLoading, error } = useProfile(session?.user?.id)
+  const token = useAuthStore((s) => s.token)
+  const user = useAuthStore((s) => s.user)
+  const hydrated = useAuthStore((s) => s.hydrated)
+
   return {
-    session,
-    profile: profile ?? null,
-    isLoading,
-    error,
-    isAuthenticated: Boolean(session),
+    session: token ? { token, user } : null,
+    profile: user,
+    isLoading: !hydrated,
+    error: null,
+    isAuthenticated: Boolean(token && user),
   }
 }
 
 export async function signOut() {
-  await supabase.auth.signOut()
+  const token = useAuthStore.getState().token
+  if (token) {
+    try {
+      await logoutRemote(token)
+    } catch {
+      // Ignore network errors; always clear the local session.
+    }
+  }
+  useAuthStore.getState().clearSession()
 }

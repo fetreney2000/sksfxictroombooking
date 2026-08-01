@@ -1,57 +1,102 @@
 import { useState } from 'react'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertCircle, Loader2, MonitorSmartphone } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { AlertCircle, Loader2, MonitorSmartphone, Rocket } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
-import { loginSchema, type LoginValues } from '@/lib/validators'
+import { loginSchema, bootstrapSchema, type LoginValues, type BootstrapValues } from '@/lib/validators'
+import { loginWithUsername, INVALID_CREDENTIALS } from '@/lib/auth'
+import { useAuthStore } from '@/store/authStore'
 import { useCurrentUser } from '@/hooks/useAuth'
+import type { Role } from '@/types/shared'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const { session, profile, isLoading } = useCurrentUser()
+  const { profile, isLoading, isAuthenticated } = useCurrentUser()
+  const setSession = useAuthStore((s) => s.setSession)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [bootstrapError, setBootstrapError] = useState<string | null>(null)
+  const [bootstrapping, setBootstrapping] = useState(false)
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { username: '', password: '' },
   })
 
+  const bootstrapForm = useForm<BootstrapValues>({
+    resolver: zodResolver(bootstrapSchema),
+    defaultValues: { username: '', password: '', fullName: '' },
+  })
+
+  const { data: needsBootstrap = false } = useQuery({
+    queryKey: ['has_users'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('has_users', {})
+      if (error) return false
+      return data === false
+    },
+    staleTime: 0,
+    refetchOnMount: 'always',
+  })
+
+  const goHome = (role: Role) => {
+    navigate(role === 'admin' ? '/admin/dashboard' : '/supervisor/dashboard')
+  }
+
   if (isLoading) return null
-  if (session && profile) {
+  if (isAuthenticated && profile) {
     return <Navigate to={profile.role === 'admin' ? '/admin/dashboard' : '/supervisor/dashboard'} replace />
   }
 
   const onSubmit = async (values: LoginValues) => {
     setSubmitting(true)
     setSubmitError(null)
-    const { error } = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    })
-    if (error) {
-      setSubmitError(error.message)
+    try {
+      const result = await loginWithUsername(values.username, values.password)
+      setSession(result.token, result.user)
+      goHome(result.user.role)
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error && err.message === INVALID_CREDENTIALS
+          ? 'Nama pengguna atau kata laluan salah.'
+          : 'Log masuk gagal, sila cuba lagi.',
+      )
       setSubmitting(false)
-      return
     }
-    const from = (location.state as { from?: string } | null)?.from
-    if (from?.startsWith('/admin')) {
-      navigate('/admin/dashboard')
-    } else if (from?.startsWith('/supervisor')) {
-      navigate('/supervisor/dashboard')
-    } else {
-      navigate('/supervisor/dashboard')
+  }
+
+  const onSubmitBootstrap = async (values: BootstrapValues) => {
+    setBootstrapping(true)
+    setBootstrapError(null)
+    try {
+      const { error } = await supabase.rpc('bootstrap_admin', {
+        p_username: values.username,
+        p_password: values.password,
+        p_full_name: values.fullName,
+      })
+      if (error) throw error
+      const result = await loginWithUsername(values.username, values.password)
+      setSession(result.token, result.user)
+      goHome(result.user.role)
+    } catch (err) {
+      setBootstrapError(
+        err instanceof Error && err.message
+          ? err.message
+          : 'Gagal mencipta akaun pentadbir pertama.',
+      )
+      setBootstrapping(false)
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 px-4 py-10">
       <div className="w-full max-w-md space-y-6">
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
@@ -63,25 +108,83 @@ export function LoginPage() {
           </div>
         </div>
 
+        {needsBootstrap && (
+          <Card className="border-blue-200 bg-blue-50/60 dark:border-blue-900/40 dark:bg-blue-950/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Rocket className="h-4 w-4" />
+                Persediaan Akaun Pentadbir Pertama
+              </CardTitle>
+              <CardDescription>
+                Tiada akaun ditemui. Cipta akaun pentadbir pertama untuk memulakan sistem.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={bootstrapForm.handleSubmit(onSubmitBootstrap)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="bootstrap-username">Nama Pengguna</Label>
+                  <Input
+                    id="bootstrap-username"
+                    placeholder="cth. admin"
+                    autoComplete="off"
+                    {...bootstrapForm.register('username')}
+                  />
+                  {bootstrapForm.formState.errors.username && (
+                    <p className="text-sm text-destructive">{bootstrapForm.formState.errors.username.message}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bootstrap-password">Kata Laluan</Label>
+                  <Input
+                    id="bootstrap-password"
+                    type="password"
+                    placeholder="Sekurang-kurangnya 6 aksara"
+                    {...bootstrapForm.register('password')}
+                  />
+                  {bootstrapForm.formState.errors.password && (
+                    <p className="text-sm text-destructive">{bootstrapForm.formState.errors.password.message}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bootstrap-name">Nama Penuh</Label>
+                  <Input id="bootstrap-name" placeholder="cth. Pentadbir Sistem" {...bootstrapForm.register('fullName')} />
+                  {bootstrapForm.formState.errors.fullName && (
+                    <p className="text-sm text-destructive">{bootstrapForm.formState.errors.fullName.message}</p>
+                  )}
+                </div>
+                {bootstrapError && (
+                  <div className="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>{bootstrapError}</span>
+                  </div>
+                )}
+                <Button type="submit" className="w-full" disabled={bootstrapping}>
+                  {bootstrapping && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Cipta Akaun Pentadbir
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>Log Masuk</CardTitle>
-            <CardDescription>Masukkan emel dan kata laluan anda.</CardDescription>
+            <CardDescription>Masukkan nama pengguna dan kata laluan anda.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Emel</Label>
+                <Label htmlFor="username">Nama Pengguna</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="nama@sekolah.edu.my"
-                  {...form.register('email')}
-                  aria-invalid={Boolean(form.formState.errors.email)}
+                  id="username"
+                  autoComplete="username"
+                  placeholder="nama_pengguna"
+                  {...form.register('username')}
+                  aria-invalid={Boolean(form.formState.errors.username)}
                 />
-                {form.formState.errors.email && (
-                  <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
+                {form.formState.errors.username && (
+                  <p className="text-sm text-destructive">{form.formState.errors.username.message}</p>
                 )}
               </div>
               <div className="space-y-2">
@@ -113,6 +216,15 @@ export function LoginPage() {
             </form>
           </CardContent>
         </Card>
+
+        {!needsBootstrap && (
+          <>
+            <Separator />
+            <p className="text-center text-xs text-muted-foreground">
+              Tiada pendaftaran awam. Akaun dicipta oleh pentadbir melalui halaman Urus Pengguna.
+            </p>
+          </>
+        )}
       </div>
     </div>
   )

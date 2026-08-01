@@ -78,7 +78,7 @@ async function main() {
   const seenRequests = []
   page.on('request', (req) => {
     const url = req.url()
-    if (url.includes('placeholder.supabase.co')) {
+    if (url.includes('supabase.co')) {
       seenRequests.push(`${req.method()} ${url}`)
       const u = new URL(url)
       const path = u.pathname
@@ -343,4 +343,5 @@ main().catch((err) => {
   console.error('E2E TEST FAILED:', err.message)
   process.exit(1)
 })
+
 

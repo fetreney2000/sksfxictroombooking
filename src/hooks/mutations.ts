@@ -1,20 +1,84 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabaseClient'
-import type { Profile, TimeSlot } from '@/types/shared'
+import { useAuthStore } from '@/store/authStore'
 
 const invalidate = (client: ReturnType<typeof useQueryClient>, keys: string[][]) => {
   for (const key of keys) client.invalidateQueries({ queryKey: key })
 }
 
-export function useAllProfiles() {
+function requireToken(): string {
+  const token = useAuthStore.getState().token
+  if (!token) throw new Error('Sesi telah tamat. Sila log masuk semula.')
+  return token
+}
+
+export interface AdminUser {
+  id: string
+  username: string
+  full_name: string
+  role: 'admin' | 'supervisor'
+  is_active: boolean
+  created_at: string
+}
+
+export function useAllUsers() {
   return useQuery({
-    queryKey: ['profiles'],
+    queryKey: ['users'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: true })
+      const token = requireToken()
+      const { data, error } = await supabase.rpc('admin_list_users', { p_token: token })
       if (error) throw error
-      return (data as Profile[]) ?? []
+      return (data as AdminUser[] | null) ?? []
     },
     staleTime: 15_000,
+  })
+}
+
+export function useCreateUser() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: {
+      username: string
+      password: string
+      full_name: string
+      role: 'admin' | 'supervisor'
+    }) => {
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_create_user', {
+        p_token: token,
+        p_username: input.username,
+        p_password: input.password,
+        p_full_name: input.full_name,
+        p_role: input.role,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => invalidate(client, [['users']]),
+  })
+}
+
+export function useUpdateUser() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: {
+      id: string
+      full_name: string
+      role: 'admin' | 'supervisor'
+      is_active: boolean
+      new_password?: string
+    }) => {
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_update_user', {
+        p_token: token,
+        p_user_id: input.id,
+        p_full_name: input.full_name,
+        p_role: input.role,
+        p_is_active: input.is_active,
+        p_new_password: input.new_password || null,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => invalidate(client, [['users']]),
   })
 }
 
@@ -22,13 +86,13 @@ export function useSaveTeacher() {
   const client = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, full_name }: { id?: string; full_name: string }) => {
-      if (id) {
-        const { error } = await supabase.from('teachers').update({ full_name }).eq('id', id)
-        if (error) throw error
-      } else {
-        const { error } = await supabase.from('teachers').insert({ full_name })
-        if (error) throw error
-      }
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_save_teacher', {
+        p_token: token,
+        p_teacher_id: id ?? null,
+        p_full_name: full_name,
+      })
+      if (error) throw error
     },
     onSuccess: () => invalidate(client, [['teachers']]),
   })
@@ -38,7 +102,12 @@ export function useSetTeacherActive() {
   const client = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase.from('teachers').update({ is_active }).eq('id', id)
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_set_teacher_active', {
+        p_token: token,
+        p_teacher_id: id,
+        p_is_active: is_active,
+      })
       if (error) throw error
     },
     onSuccess: () => invalidate(client, [['teachers']]),
@@ -49,7 +118,11 @@ export function useDeleteTeacher() {
   const client = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('teachers').delete().eq('id', id)
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_delete_teacher', {
+        p_token: token,
+        p_teacher_id: id,
+      })
       if (error) throw error
     },
     onSuccess: () => invalidate(client, [['teachers']]),
@@ -59,16 +132,22 @@ export function useDeleteTeacher() {
 export function useSaveTimeSlot() {
   const client = useQueryClient()
   return useMutation({
-    mutationFn: async (slot: Pick<TimeSlot, 'id' | 'start_time' | 'end_time' | 'sort_order' | 'is_active'>) => {
-      const { error } = await supabase
-        .from('time_slots')
-        .update({
-          start_time: slot.start_time,
-          end_time: slot.end_time,
-          sort_order: slot.sort_order,
-          is_active: slot.is_active,
-        })
-        .eq('id', slot.id)
+    mutationFn: async (slot: {
+      id: string
+      start_time: string
+      end_time: string
+      sort_order: number
+      is_active: boolean
+    }) => {
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_save_time_slot', {
+        p_token: token,
+        p_slot_id: slot.id,
+        p_start_time: slot.start_time,
+        p_end_time: slot.end_time,
+        p_sort_order: slot.sort_order,
+        p_is_active: slot.is_active,
+      })
       if (error) throw error
     },
     onSuccess: () => invalidate(client, [['time_slots']]),
@@ -79,7 +158,12 @@ export function useToggleTimeSlot() {
   const client = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase.from('time_slots').update({ is_active }).eq('id', id)
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_toggle_time_slot', {
+        p_token: token,
+        p_slot_id: id,
+        p_is_active: is_active,
+      })
       if (error) throw error
     },
     onSuccess: () => invalidate(client, [['time_slots']]),
@@ -90,7 +174,12 @@ export function useReorderTimeSlot() {
   const client = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, sort_order }: { id: string; sort_order: number }) => {
-      const { error } = await supabase.from('time_slots').update({ sort_order }).eq('id', id)
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_reorder_time_slot', {
+        p_token: token,
+        p_slot_id: id,
+        p_sort_order: sort_order,
+      })
       if (error) throw error
     },
     onSuccess: () => invalidate(client, [['time_slots']]),
@@ -101,7 +190,12 @@ export function useAddBlockedDate() {
   const client = useQueryClient()
   return useMutation({
     mutationFn: async ({ blocked_date, reason }: { blocked_date: string; reason?: string }) => {
-      const { error } = await supabase.from('blocked_dates').insert({ blocked_date, reason: reason || null })
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_add_blocked_date', {
+        p_token: token,
+        p_blocked_date: blocked_date,
+        p_reason: reason || null,
+      })
       if (error) throw error
     },
     onSuccess: () => invalidate(client, [['blocked_dates']]),
@@ -112,7 +206,11 @@ export function useRemoveBlockedDate() {
   const client = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('blocked_dates').delete().eq('id', id)
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_remove_blocked_date', {
+        p_token: token,
+        p_blocked_date_id: id,
+      })
       if (error) throw error
     },
     onSuccess: () => invalidate(client, [['blocked_dates']]),
@@ -137,10 +235,16 @@ export function useUpdateBooking() {
       class_name: string
       purpose: string
     }) => {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ booking_date, time_slot_id, teacher_id, class_name, purpose })
-        .eq('id', id)
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_update_booking', {
+        p_token: token,
+        p_booking_id: id,
+        p_booking_date: booking_date,
+        p_time_slot_id: time_slot_id,
+        p_teacher_id: teacher_id,
+        p_class_name: class_name,
+        p_purpose: purpose,
+      })
       if (error) throw error
     },
     onSuccess: () => invalidate(client, [['bookings']]),
@@ -151,20 +255,13 @@ export function useDeleteBooking() {
   const client = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('bookings').delete().eq('id', id)
+      const token = requireToken()
+      const { error } = await supabase.rpc('admin_delete_booking', {
+        p_token: token,
+        p_booking_id: id,
+      })
       if (error) throw error
     },
     onSuccess: () => invalidate(client, [['bookings']]),
-  })
-}
-
-export function useUpdateProfileRole() {
-  const client = useQueryClient()
-  return useMutation({
-    mutationFn: async ({ id, full_name, role }: { id: string; full_name: string; role: 'admin' | 'supervisor' }) => {
-      const { error } = await supabase.from('profiles').update({ full_name, role }).eq('id', id)
-      if (error) throw error
-    },
-    onSuccess: () => invalidate(client, [['profiles']]),
   })
 }

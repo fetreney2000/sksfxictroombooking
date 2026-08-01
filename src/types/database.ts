@@ -145,7 +145,124 @@ export interface Database {
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      login: {
+        Args: { p_username: string; p_password: string }
+        Returns: {
+          token: string
+          user: { id: string; username: string; full_name: string; role: 'admin' | 'supervisor' }
+        } | null
+      }
+      me: {
+        Args: { p_token: string }
+        Returns: {
+          id: string
+          username: string
+          full_name: string
+          role: 'admin' | 'supervisor'
+          is_active: boolean
+        } | null
+      }
+      has_users: {
+        Args: Record<string, never>
+        Returns: boolean
+      }
+      logout: {
+        Args: { p_token: string }
+        Returns: null
+      }
+      bootstrap_admin: {
+        Args: { p_username: string; p_password: string; p_full_name?: string }
+        Returns: string | null
+      }
+      admin_create_user: {
+        Args: {
+          p_token: string
+          p_username: string
+          p_password: string
+          p_full_name: string
+          p_role?: string
+        }
+        Returns: string | null
+      }
+      admin_update_user: {
+        Args: {
+          p_token: string
+          p_user_id: string
+          p_full_name: string
+          p_role: string
+          p_is_active: boolean
+          p_new_password?: string | null
+        }
+        Returns: null
+      }
+      admin_list_users: {
+        Args: { p_token: string }
+        Returns: {
+          id: string
+          username: string
+          full_name: string
+          role: 'admin' | 'supervisor'
+          is_active: boolean
+          created_at: string
+        }[]
+      }
+      admin_save_teacher: {
+        Args: { p_token: string; p_teacher_id: string | null; p_full_name: string }
+        Returns: null
+      }
+      admin_set_teacher_active: {
+        Args: { p_token: string; p_teacher_id: string; p_is_active: boolean }
+        Returns: null
+      }
+      admin_delete_teacher: {
+        Args: { p_token: string; p_teacher_id: string }
+        Returns: null
+      }
+      admin_save_time_slot: {
+        Args: {
+          p_token: string
+          p_slot_id: string
+          p_start_time: string
+          p_end_time: string
+          p_sort_order: number
+          p_is_active: boolean
+        }
+        Returns: null
+      }
+      admin_toggle_time_slot: {
+        Args: { p_token: string; p_slot_id: string; p_is_active: boolean }
+        Returns: null
+      }
+      admin_reorder_time_slot: {
+        Args: { p_token: string; p_slot_id: string; p_sort_order: number }
+        Returns: null
+      }
+      admin_add_blocked_date: {
+        Args: { p_token: string; p_blocked_date: string; p_reason?: string | null }
+        Returns: null
+      }
+      admin_remove_blocked_date: {
+        Args: { p_token: string; p_blocked_date_id: string }
+        Returns: null
+      }
+      admin_update_booking: {
+        Args: {
+          p_token: string
+          p_booking_id: string
+          p_booking_date: string
+          p_time_slot_id: string
+          p_teacher_id: string
+          p_class_name: string
+          p_purpose: string
+        }
+        Returns: null
+      }
+      admin_delete_booking: {
+        Args: { p_token: string; p_booking_id: string }
+        Returns: null
+      }
+    }
     Enums: Record<string, never>
     CompositeTypes: Record<string, never>
   }

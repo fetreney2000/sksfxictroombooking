@@ -44,8 +44,26 @@ export const profileRoleFormSchema = z.object({
 })
 
 export const loginSchema = z.object({
-  email: z.string().trim().email('Sila masukkan emel yang sah.'),
+  username: z
+    .string()
+    .trim()
+    .min(3, 'Nama pengguna sekurang-kurangnya 3 aksara.')
+    .max(30, 'Nama pengguna tidak boleh melebihi 30 aksara.')
+    .regex(/^[a-zA-Z0-9._-]+$/, 'Nama pengguna hanya boleh mengandungi huruf, nombor, titik, sempang dan garis bawah.'),
   password: z.string().min(6, 'Kata laluan sekurang-kurangnya 6 aksara.'),
 })
 
 export type LoginValues = z.infer<typeof loginSchema>
+
+export const bootstrapSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(3, 'Nama pengguna sekurang-kurangnya 3 aksara.')
+    .max(30, 'Nama pengguna tidak boleh melebihi 30 aksara.')
+    .regex(/^[a-zA-Z0-9._-]+$/, 'Nama pengguna hanya boleh mengandungi huruf, nombor, titik, sempang dan garis bawah.'),
+  password: z.string().min(6, 'Kata laluan sekurang-kurangnya 6 aksara.'),
+  fullName: z.string().trim().min(3, 'Sila masukkan nama penuh.').max(100, 'Nama penuh terlalu panjang.'),
+})
+
+export type BootstrapValues = z.infer<typeof bootstrapSchema>

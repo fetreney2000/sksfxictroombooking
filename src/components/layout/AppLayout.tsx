@@ -51,7 +51,7 @@ const pageTitles: Record<string, string> = {
 export function AppLayout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { profile, session } = useCurrentUser()
+  const { profile } = useCurrentUser()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const isAdmin = profile?.role === 'admin'
@@ -98,9 +98,7 @@ export function AppLayout() {
         ))}
       </nav>
       <div className="px-4">
-        <p className="text-xs text-muted-foreground">
-          {session?.user?.email}
-        </p>
+        <p className="truncate text-xs text-muted-foreground">@{profile?.username ?? ''}</p>
       </div>
     </div>
   )
