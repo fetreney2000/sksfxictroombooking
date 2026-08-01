@@ -197,23 +197,24 @@ async function main() {
   text = await page.evaluate(() => document.body.innerText)
   console.log(`STEP3: renders details=${text.includes('Maklumat Tempahan')}`)
 
-  // Open teacher combobox, type to filter, press Enter to select highlighted item
-  await page.click('button[role="combobox"]')
-  await new Promise((r) => setTimeout(r, 500))
+  // Open teacher combobox (Base UI): click the input, type to filter, press ArrowDown + Enter
+  await page.click('#teacherId')
+  await new Promise((r) => setTimeout(r, 400))
   await page.keyboard.type('Siti')
   await new Promise((r) => setTimeout(r, 400))
+  await page.keyboard.press('ArrowDown')
   await page.keyboard.press('Enter')
   await new Promise((r) => setTimeout(r, 500))
 
   const afterSelect = await page.evaluate(() => {
-    const comboBtn = Array.from(document.querySelectorAll('button[role="combobox"]'))[0]
+    const input = document.querySelector('#teacherId')
     const classInput = document.querySelector('#className')
     return {
-      comboLabel: comboBtn ? comboBtn.textContent : 'no-combo',
+      comboLabel: input ? input.value : 'no-input',
       classNameValue: classInput ? classInput.value : 'no-input',
     }
   })
-  console.log(`STEP3: combobox label after select="${afterSelect.comboLabel}"`)
+  console.log(`STEP3: combobox value after select="${afterSelect.comboLabel}"`)
   console.log(`STEP3: className input value="${afterSelect.classNameValue}"`)
 
   await page.type('#className', '5 Cerdik')
@@ -297,8 +298,9 @@ async function main() {
   await clickButton(page, 'Seterusnya')
   await new Promise((r) => setTimeout(r, 600))
 
-  await page.click('button[role="combobox"]')
+  await page.click('#teacherId')
   await new Promise((r) => setTimeout(r, 400))
+  await page.keyboard.press('ArrowDown')
   await page.keyboard.press('Enter')
   await new Promise((r) => setTimeout(r, 400))
   await page.type('#className', '5 Bijak')

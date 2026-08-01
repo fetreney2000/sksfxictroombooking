@@ -4,7 +4,14 @@ import { AlertCircle } from 'lucide-react'
 import { bookingDetailsSchema, type BookingDetailsValues } from '@/lib/validators'
 import { useBookingFormStore } from '@/store/bookingFormStore'
 import { useTeachers } from '@/hooks/useTeachers'
-import { Combobox } from '@/components/ui/combobox'
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -36,8 +43,6 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
     mode: 'onSubmit',
   })
 
-  const teacherItems = teachers?.map((t) => ({ value: t.id, label: t.full_name })) ?? []
-
   const onSubmit = (values: BookingDetailsValues) => {
     setTeacherId(values.teacherId)
     setClassName(values.className)
@@ -65,16 +70,35 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
             <Controller
               control={form.control}
               name="teacherId"
-              render={({ field }) => (
-                <Combobox
-                  items={teacherItems}
-                  value={field.value || null}
-                  onChange={(value) => field.onChange(value ?? '')}
-                  emptyText="Tiada guru ditemui."
-                  loading={teachersLoading}
-                  className={form.formState.errors.teacherId ? 'border-destructive' : ''}
-                />
-              )}
+              render={({ field }) => {
+                const selectedTeacher = teachers?.find((t) => t.id === field.value) ?? null
+                return (
+                  <Combobox
+                    items={teachers ?? []}
+                    value={selectedTeacher}
+                    onValueChange={(teacher) => field.onChange(teacher ? teacher.id : '')}
+                    itemToStringValue={(teacher) => teacher.full_name}
+                    itemToStringLabel={(teacher) => teacher.full_name}
+                    disabled={teachersLoading}
+                  >
+                    <ComboboxInput
+                      id="teacherId"
+                      aria-label="Nama Guru"
+                      aria-invalid={Boolean(form.formState.errors.teacherId)}
+                    />
+                    <ComboboxContent>
+                      <ComboboxEmpty>Tiada guru ditemui.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(teacher) => (
+                          <ComboboxItem key={teacher.id} value={teacher}>
+                            {teacher.full_name}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
+                )
+              }}
             />
             {form.formState.errors.teacherId && (
               <p className="text-sm text-destructive">{form.formState.errors.teacherId.message}</p>
