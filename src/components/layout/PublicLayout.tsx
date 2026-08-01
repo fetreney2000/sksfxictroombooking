@@ -1,10 +1,8 @@
-import { Link, Outlet } from 'react-router-dom'
-import { MonitorSmartphone, ShieldCheck } from 'lucide-react'
+import { Outlet } from 'react-router-dom'
+import { MonitorSmartphone } from 'lucide-react'
 import { isSupabaseConfigured } from '@/lib/supabaseClient'
-import { useCurrentUser } from '@/hooks/useAuth'
 
 export function PublicLayout() {
-  const { isAuthenticated } = useCurrentUser()
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
       {!isSupabaseConfigured && (
@@ -24,15 +22,6 @@ export function PublicLayout() {
               <p className="text-xs text-muted-foreground">Tempah slot Bilik ICT untuk sesi PdPc</p>
             </div>
           </div>
-          {isAuthenticated ? (
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-accent"
-            >
-              <ShieldCheck className="h-4 w-4" />
-              Papan Pemuka
-            </Link>
-          ) : null}
         </div>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
