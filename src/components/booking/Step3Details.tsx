@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AlertCircle } from 'lucide-react'
@@ -17,6 +18,9 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
+const CUSTOM_PURPOSE_OPTION = 'Lain-lain'
 
 interface Step3DetailsProps {
   onBack: () => void
@@ -45,14 +49,31 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
       teacherId: teacherId ?? '',
       className,
       purpose,
+      customPurpose: '',
     },
     mode: 'onSubmit',
   })
 
+  const watchPurpose = form.watch('purpose')
+  const initializedRef = useRef(false)
+
+  // Restore a custom tujuan saved in the store: if the stored purpose is not a
+  // known tujuan, treat it as a "Lain-lain" selection with the custom text.
+  useEffect(() => {
+    if (!tujuanList || initializedRef.current) return
+    initializedRef.current = true
+    const names = new Set(tujuanList.map((t) => t.name))
+    const isCustom = Boolean(purpose && !names.has(purpose))
+    form.setValue('purpose', isCustom ? CUSTOM_PURPOSE_OPTION : purpose)
+    form.setValue('customPurpose', isCustom ? purpose : '')
+  }, [tujuanList, purpose, form])
+
   const onSubmit = (values: BookingDetailsValues) => {
+    const finalPurpose =
+      values.purpose === CUSTOM_PURPOSE_OPTION ? (values.customPurpose ?? '').trim() : values.purpose
     setTeacherId(values.teacherId)
     setClassName(values.className)
-    setPurpose(values.purpose)
+    setPurpose(finalPurpose)
     onNext()
   }
 
@@ -165,7 +186,12 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
                   <Combobox
                     items={tujuanList ?? []}
                     value={selectedTujuan}
-                    onValueChange={(t) => field.onChange(t ? t.name : '')}
+                    onValueChange={(t) => {
+                      field.onChange(t ? t.name : '')
+                      if (!t || t.name !== CUSTOM_PURPOSE_OPTION) {
+                        form.setValue('customPurpose', '')
+                      }
+                    }}
                     itemToStringValue={(t) => t.name}
                     itemToStringLabel={(t) => t.name}
                     disabled={tujuanLoading}
@@ -193,6 +219,20 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
               <p className="text-sm text-destructive">{form.formState.errors.purpose.message}</p>
             )}
           </div>
+
+          {watchPurpose === CUSTOM_PURPOSE_OPTION ? (
+            <div className="space-y-2">
+              <Label htmlFor="customPurpose">Nyatakan Tujuan</Label>
+              <Input
+                id="customPurpose"
+                {...form.register('customPurpose')}
+                aria-invalid={Boolean(form.formState.errors.customPurpose)}
+              />
+              {form.formState.errors.customPurpose && (
+                <p className="text-sm text-destructive">{form.formState.errors.customPurpose.message}</p>
+              )}
+            </div>
+          ) : null}
 
           <div className="flex items-center justify-between gap-2 border-t pt-4">
             <Button type="button" variant="ghost" onClick={onBack}>

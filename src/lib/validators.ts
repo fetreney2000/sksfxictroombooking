@@ -12,11 +12,29 @@ export const purposeSchema = z
   .min(5, 'Sila masukkan tujuan tempahan (sekurang-kurangnya 5 aksara).')
   .max(300, 'Tujuan tempahan tidak boleh melebihi 300 aksara.')
 
-export const bookingDetailsSchema = z.object({
-  teacherId: z.string().uuid('Sila pilih nama guru.').min(1, 'Sila pilih nama guru.'),
-  className: classNameSchema,
-  purpose: purposeSchema,
-})
+export const bookingDetailsSchema = z
+  .object({
+    teacherId: z.string().uuid('Sila pilih nama guru.').min(1, 'Sila pilih nama guru.'),
+    className: classNameSchema,
+    purpose: purposeSchema,
+    customPurpose: z
+      .string()
+      .trim()
+      .max(300, 'Tujuan tempahan tidak boleh melebihi 300 aksara.')
+      .optional(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.purpose === 'Lain-lain') {
+      const custom = (values.customPurpose ?? '').trim()
+      if (custom.length < 5) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['customPurpose'],
+          message: 'Sila masukkan tujuan tempahan (sekurang-kurangnya 5 aksara).',
+        })
+      }
+    }
+  })
 
 export type BookingDetailsValues = z.infer<typeof bookingDetailsSchema>
 
