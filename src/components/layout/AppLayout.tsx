@@ -1,5 +1,5 @@
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { BarChart3, BookOpenCheck, CalendarDays, CalendarX2, FileDown, LogOut, MonitorSmartphone, School, Table2, UserCog, Users } from 'lucide-react'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { BarChart3, BookOpenCheck, CalendarDays, CalendarX2, FileDown, Home, LogOut, MonitorSmartphone, School, Table2, UserCog, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCurrentUser, signOut } from '@/hooks/useAuth'
 import { Badge } from '@/components/ui/badge'
@@ -112,32 +112,42 @@ export function AppLayout() {
         <header className="flex h-14 items-center justify-between border-b bg-background px-4">
           <h2 className="truncate text-base font-semibold">{title}</h2>
           {profile ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-9 gap-2 px-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                    {(displayName || '?').charAt(0).toUpperCase()}
-                  </span>
-                  <span className="max-w-[130px] truncate text-sm font-medium">{displayName}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col gap-1">
-                    <span>{displayName}</span>
-                    <span className="text-xs text-muted-foreground">@{profile.username}</span>
-                    <Badge variant={isAdmin ? 'default' : 'secondary'} className="w-fit">
-                      {isAdmin ? 'Pentadbir' : 'Penyelia'}
-                    </Badge>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log Keluar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center gap-1">
+              <Link
+                to="/"
+                aria-label="Laman Tempahan"
+                className="inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                <Home className="h-4 w-4" />
+                <span className="hidden sm:inline">Laman Tempahan</span>
+              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-9 gap-2 px-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                      {(displayName || '?').charAt(0).toUpperCase()}
+                    </span>
+                    <span className="max-w-[130px] truncate text-sm font-medium">{displayName}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col gap-1">
+                      <span>{displayName}</span>
+                      <span className="text-xs text-muted-foreground">@{profile.username}</span>
+                      <Badge variant={isAdmin ? 'default' : 'secondary'} className="w-fit">
+                        {isAdmin ? 'Pentadbir' : 'Penyelia'}
+                      </Badge>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log Keluar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ) : null}
         </header>
         <main className="flex-1 p-4 pb-20 sm:p-6 sm:pb-20 lg:pb-6">

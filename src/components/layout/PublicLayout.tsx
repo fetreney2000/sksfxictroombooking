@@ -1,8 +1,10 @@
-import { Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import { MonitorSmartphone } from 'lucide-react'
 import { isSupabaseConfigured } from '@/lib/supabaseClient'
+import { useCurrentUser } from '@/hooks/useAuth'
 
 export function PublicLayout() {
+  const { profile } = useCurrentUser()
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
       {!isSupabaseConfigured && (
@@ -22,6 +24,12 @@ export function PublicLayout() {
               <p className="text-xs text-muted-foreground">Tempah slot Bilik ICT untuk sesi PdPc</p>
             </div>
           </div>
+          <Link
+            to={profile ? '/dashboard' : '/login'}
+            className="rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
+          >
+            {profile ? 'Papan Pemuka' : 'Log Masuk'}
+          </Link>
         </div>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
