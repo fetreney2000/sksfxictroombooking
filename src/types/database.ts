@@ -261,6 +261,10 @@ export interface Database {
         Args: { p_token: string; p_teacher_id: string }
         Returns: null
       }
+      admin_import_teachers: {
+        Args: { p_token: string; p_names: string[] }
+        Returns: number
+      }
       admin_save_time_slot: {
         Args: {
           p_token: string

@@ -98,6 +98,22 @@ export function useSaveTeacher() {
   })
 }
 
+export function useImportTeachers() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: async (names: string[]) => {
+      const token = requireToken()
+      const { data, error } = await supabase.rpc('admin_import_teachers', {
+        p_token: token,
+        p_names: names,
+      })
+      if (error) throw error
+      return (data as number | null) ?? 0
+    },
+    onSuccess: () => invalidate(client, [['teachers']]),
+  })
+}
+
 export function useSetTeacherActive() {
   const client = useQueryClient()
   return useMutation({
