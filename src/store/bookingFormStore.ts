@@ -5,13 +5,13 @@ export type BookingStep = 1 | 2 | 3 | 4
 interface BookingFormStore {
   step: BookingStep
   date: Date | null
-  timeSlotId: string | null
+  timeSlotIds: string[]
   teacherId: string | null
   className: string
   purpose: string
   setStep: (step: BookingStep) => void
   setDate: (date: Date | null) => void
-  setTimeSlotId: (id: string | null) => void
+  setTimeSlotIds: (ids: string[] | ((prev: string[]) => string[])) => void
   setTeacherId: (id: string | null) => void
   setClassName: (value: string) => void
   setPurpose: (value: string) => void
@@ -21,7 +21,7 @@ interface BookingFormStore {
 const initialState = {
   step: 1 as BookingStep,
   date: null,
-  timeSlotId: null,
+  timeSlotIds: [] as string[],
   teacherId: null,
   className: '',
   purpose: '',
@@ -33,9 +33,14 @@ export const useBookingFormStore = create<BookingFormStore>((set) => ({
   setDate: (date) =>
     set((state) => ({
       date,
-      timeSlotId: state.date && date && state.date.toISOString() === date.toISOString() ? state.timeSlotId : null,
+      timeSlotIds:
+        state.date && date && state.date.toISOString() === date.toISOString() ? state.timeSlotIds : [],
     })),
-  setTimeSlotId: (timeSlotId) => set({ timeSlotId }),
+  setTimeSlotIds: (timeSlotIds) =>
+    set((state) => ({
+      timeSlotIds:
+        typeof timeSlotIds === 'function' ? timeSlotIds(state.timeSlotIds) : timeSlotIds,
+    })),
   setTeacherId: (teacherId) => set({ teacherId }),
   setClassName: (className) => set({ className }),
   setPurpose: (purpose) => set({ purpose }),
@@ -47,7 +52,7 @@ export function useHasFormData(): boolean {
   return useBookingFormStore((state) => {
     return (
       state.date !== null ||
-      state.timeSlotId !== null ||
+      state.timeSlotIds.length > 0 ||
       state.teacherId !== null ||
       state.className.trim().length > 0 ||
       state.purpose.trim().length > 0

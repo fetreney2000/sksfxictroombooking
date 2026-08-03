@@ -121,8 +121,9 @@ async function main() {
         const date = u.searchParams.get('booking_date')?.replace('eq.', '')
         payload = buildBookingsFor(date)
       } else if (path.endsWith('/bookings') && method === 'POST') {
-        // Simulate the unique-constraint race: the slot was just taken by someone else.
-        if (body.time_slot_id === forceConflictSlot && body.booking_date === forceConflictDate) {
+        const rows = Array.isArray(parsedBody) ? parsedBody : [parsedBody]
+        // Simulate the unique-constraint race: a slot was just taken by someone else.
+        if (rows.some((r) => r.time_slot_id === forceConflictSlot && r.booking_date === forceConflictDate)) {
           req.respond({
             status: 409,
             headers: corsHeaders,
@@ -135,15 +136,17 @@ async function main() {
           })
           return
         }
-        postedBooking = body
-        mockBookings.set(`${body.time_slot_id}`, {
-          date: body.booking_date,
-          slotId: body.time_slot_id,
-          teacherId: body.teacher_id,
-          className: body.class_name,
-          purpose: body.purpose,
-        })
-        payload = buildBookingsFor(body.booking_date)
+        for (const row of rows) {
+          mockBookings.set(`${row.time_slot_id}`, {
+            date: row.booking_date,
+            slotId: row.time_slot_id,
+            teacherId: row.teacher_id,
+            className: row.class_name,
+            purpose: row.purpose,
+          })
+        }
+        postedBooking = rows
+        payload = rows.length > 0 ? buildBookingsFor(rows[0].booking_date) : []
       }
 
       if (payload !== null) {
@@ -196,15 +199,50 @@ async function main() {
   for (const r of seenRequests) console.log('  ' + r)
   console.log('STEP2: blocked date info not shown here (expected)')
 
-  // Select first available slot card
+  // Select two available slots (multi-slot booking, max 4)
   await page.evaluate(() => {
     const cards = Array.from(document.querySelectorAll('button[type="button"]')).filter((b) =>
       (b.textContent.includes('PAGI') || b.textContent.includes('TENGAHARI') || b.textContent.includes('PETANG')) &&
       !b.disabled,
     )
     cards[0].click()
+    cards[1].click()
   })
   await new Promise((r) => setTimeout(r, 300))
+  let slotText = await page.evaluate(() => document.body.innerText)
+  console.log(`STEP2: count 2/4 shown=${slotText.includes('2/4 dipilih')}`)
+
+  // Select two more -> 4/4; a 5th slot must become disabled
+  await page.evaluate(() => {
+    const cards = Array.from(document.querySelectorAll('button[type="button"]')).filter((b) =>
+      b.textContent.includes('PAGI') || b.textContent.includes('TENGAHARI') || b.textContent.includes('PETANG'),
+    )
+    cards[2].click()
+    cards[3].click()
+  })
+  await new Promise((r) => setTimeout(r, 300))
+  slotText = await page.evaluate(() => document.body.innerText)
+  console.log(`STEP2: count 4/4 shown=${slotText.includes('4/4 dipilih')}`)
+  const fifthDisabled = await page.evaluate(() => {
+    const cards = Array.from(document.querySelectorAll('button[type="button"]')).filter((b) =>
+      b.textContent.includes('PAGI') || b.textContent.includes('TENGAHARI') || b.textContent.includes('PETANG'),
+    )
+    return cards.length > 4 ? Boolean(cards[4].disabled) : null
+  })
+  console.log(`STEP2: 5th slot disabled at max=${fifthDisabled}`)
+
+  // Deselect two, back to 2/4, then continue
+  await page.evaluate(() => {
+    const cards = Array.from(document.querySelectorAll('button[type="button"]')).filter((b) =>
+      b.textContent.includes('PAGI') || b.textContent.includes('TENGAHARI') || b.textContent.includes('PETANG'),
+    )
+    cards[3].click()
+    cards[2].click()
+  })
+  await new Promise((r) => setTimeout(r, 300))
+  slotText = await page.evaluate(() => document.body.innerText)
+  console.log(`STEP2: back to 2/4=${slotText.includes('2/4 dipilih')}`)
+
   await clickButton(page, 'Seterusnya')
   await new Promise((r) => setTimeout(r, 600))
 
@@ -264,15 +302,21 @@ async function main() {
   await new Promise((r) => setTimeout(r, 1500))
 
   text = await page.evaluate(() => document.body.innerText)
-  console.log(`SUCCESS: shows success=${text.includes('Tempahan berjaya!')}`)
+  console.log(`SUCCESS: shows success=${text.includes('Tempahan berjaya')}`)
   console.log(`POST payload: ${JSON.stringify(postedBooking)}`)
+  const rows = Array.isArray(postedBooking) ? postedBooking : [postedBooking]
   const postOk =
-    postedBooking &&
-    postedBooking.booking_date === '2026-08-04' &&
-    postedBooking.teacher_id === '11111111-2222-4111-8111-000000000001' &&
-    postedBooking.class_name === '5 Cerdik' &&
-    postedBooking.purpose === 'Kelas PdPc TMK'
-  console.log(`POST payload correct: ${postOk}`)
+    rows.length === 2 &&
+    rows.every(
+      (r) =>
+        r.booking_date === '2026-08-04' &&
+        r.teacher_id === '11111111-2222-4111-8111-000000000001' &&
+        r.class_name === '5 Cerdik' &&
+        r.purpose === 'Kelas PdPc TMK',
+    ) &&
+    rows.some((r) => r.time_slot_id === '11111111-1111-4111-8111-000000000001') &&
+    rows.some((r) => r.time_slot_id === '11111111-1111-4111-8111-000000000002')
+  console.log(`POST payload correct (2 slots): ${postOk}`)
 
   // --- New booking button ---
   await clickButton(page, 'Tempahan Baharu')
@@ -294,8 +338,13 @@ async function main() {
   await new Promise((r) => setTimeout(r, 300))
   await clickButton(page, 'Seterusnya')
   await new Promise((r) => setTimeout(r, 1200))
+  const raceBookedCount = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll('button[type="button"]')).filter((b) =>
+      b.textContent.includes('Telah Ditempah'),
+    ).length
+  })
+  console.log(`RACE: two slots show Telah Ditempah=${raceBookedCount === 2}`)
   text = await page.evaluate(() => document.body.innerText)
-  console.log(`RACE: first slot shows Telah Ditempah=${text.includes('Telah Ditempah')}`)
   console.log(`RACE: booked class shown=${text.includes('Kelas: 5 Cerdik')}`)
 
   // --- 23505 submit race: slot looks free but is taken at submit time ---
@@ -358,7 +407,7 @@ async function main() {
   await new Promise((r) => setTimeout(r, 1800))
   text = await page.evaluate(() => document.body.innerText)
   console.log(
-    `RACE23505: friendly error shown=${text.includes('Maaf, slot ini baru sahaja ditempah oleh orang lain.')}`,
+    `RACE23505: friendly error shown=${text.includes('baru sahaja ditempah oleh orang lain')}`,
   )
   console.log(`RACE23505: back to slot step=${text.includes('Pilih Slot Masa')}`)
 

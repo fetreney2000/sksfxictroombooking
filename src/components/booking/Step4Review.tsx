@@ -16,7 +16,7 @@ interface Step4ReviewProps {
 }
 
 export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
-  const { date, timeSlotId, teacherId, className, purpose, reset, setStep } = useBookingFormStore()
+  const { date, timeSlotIds, teacherId, className, purpose, reset, setStep } = useBookingFormStore()
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const submitMutation = useSubmitBooking()
@@ -26,18 +26,24 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
   const { refetch } = useBookingsForDate(date)
 
   const teacher = teachers?.find((t) => t.id === teacherId)
-  const slot = slots?.find((s) => s.id === timeSlotId)
+  const selectedSlots =
+    (slots ?? [])
+      .filter((s) => timeSlotIds.includes(s.id))
+      .sort((a, b) => a.start_time.localeCompare(b.start_time)) ?? []
+  const slotSummary = selectedSlots
+    .map((s) => `${formatTime12h(s.start_time)} – ${formatTime12h(s.end_time)}`)
+    .join(', ')
 
   const handleSubmit = async () => {
-    if (!date || !timeSlotId || !teacherId) return
+    if (!date || timeSlotIds.length === 0 || !teacherId) return
     if (isPastDate(date)) {
       toast.error('Maaf, tarikh ini sudah berlalu. Sila pilih tarikh lain.')
       setSubmitting(false)
       onBackToSlots()
       return
     }
-    if (slot && isSlotPast(date, slot.start_time)) {
-      toast.error('Maaf, slot ini telah bermula. Sila pilih slot lain.')
+    if (selectedSlots.some((s) => isSlotPast(date, s.start_time))) {
+      toast.error('Maaf, salah satu slot telah bermula. Sila pilih slot lain.')
       setSubmitting(false)
       onBackToSlots()
       return
@@ -45,26 +51,26 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
     setSubmitting(true)
     try {
       const { data: freshBookings } = await refetch()
-      const slotTaken = freshBookings?.some((b) => b.time_slot_id === timeSlotId) ?? false
-      if (slotTaken) {
-        toast.error('Maaf, slot ini baru sahaja ditempah oleh orang lain. Sila pilih slot lain.')
+      const takenSlots = freshBookings?.filter((b) => timeSlotIds.includes(b.time_slot_id)) ?? []
+      if (takenSlots.length > 0) {
+        toast.error('Maaf, salah satu slot baru sahaja ditempah oleh orang lain. Sila pilih slot lain.')
         setSubmitting(false)
         onBackToSlots()
         return
       }
       await submitMutation.mutateAsync({
         booking_date: formatDateForDB(date),
-        time_slot_id: timeSlotId,
+        time_slot_ids: timeSlotIds,
         teacher_id: teacherId,
         class_name: className.trim(),
         purpose: purpose.trim(),
       })
-      toast.success('Tempahan berjaya!')
+      toast.success(`Tempahan berjaya untuk ${timeSlotIds.length} slot!`)
       setSubmitted(true)
     } catch (err) {
       const code = (err as { code?: string })?.code
       if (code === '23505') {
-        toast.error('Maaf, slot ini baru sahaja ditempah oleh orang lain. Sila pilih slot lain.')
+        toast.error('Maaf, salah satu slot baru sahaja ditempah oleh orang lain. Sila pilih slot lain.')
         onBackToSlots()
       } else {
         toast.error('Tempahan gagal, sila cuba lagi.')
@@ -90,7 +96,7 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
             </p>
             <p>
               <span className="font-medium text-muted-foreground">Slot: </span>
-              {slot ? `${formatTime12h(slot.start_time)} – ${formatTime12h(slot.end_time)}` : '-'}
+              {slotSummary || '-'}
             </p>
             <p>
               <span className="font-medium text-muted-foreground">Guru: </span>
@@ -125,10 +131,9 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
         <div className="space-y-3 rounded-lg border p-4 text-sm">
           <SummaryRow label="Tarikh" value={date ? formatDateDisplay(date) : '-'} />
           <Separator />
-          <SummaryRow
-            label="Slot Masa"
-            value={slot ? `${formatTime12h(slot.start_time)} – ${formatTime12h(slot.end_time)}` : '-'}
-          />
+          <SummaryRow label="Slot Masa" value={slotSummary || '-'} />
+          <Separator />
+          <SummaryRow label="Bilangan Slot" value={selectedSlots.length > 0 ? `${selectedSlots.length} slot` : '-'} />
           <Separator />
           <SummaryRow label="Nama Guru" value={teacher?.full_name ?? '-'} />
           <Separator />

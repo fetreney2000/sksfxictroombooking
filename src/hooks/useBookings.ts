@@ -40,7 +40,7 @@ export function useAllBookings() {
 
 interface SubmitBookingInput {
   booking_date: string
-  time_slot_id: string
+  time_slot_ids: string[]
   teacher_id: string
   class_name: string
   purpose: string
@@ -50,18 +50,17 @@ export function useSubmitBooking() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (input: SubmitBookingInput) => {
-      const payload: TablesInsert<'bookings'> = {
+      const payload: TablesInsert<'bookings'>[] = input.time_slot_ids.map((time_slot_id) => ({
         booking_date: input.booking_date,
-        time_slot_id: input.time_slot_id,
+        time_slot_id,
         teacher_id: input.teacher_id,
         class_name: input.class_name,
         purpose: input.purpose,
-      }
+      }))
       const { data, error } = await supabase
         .from('bookings')
         .insert(payload)
         .select('*, teachers(full_name), time_slots(start_time, end_time)')
-        .single()
       if (error) throw error
       return data
     },

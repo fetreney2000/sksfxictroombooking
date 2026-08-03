@@ -18,7 +18,7 @@ export interface BookingWithDetails extends Booking {
 
 export interface BookingFormState {
   date: Date | null
-  timeSlotId: string | null
+  timeSlotIds: string[]
   teacherId: string | null
   className: string
   purpose: string
