@@ -2,10 +2,8 @@ import { useState } from 'react'
 import { CalendarX2, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDateCompact, formatDateForDB, getTodayInKL } from '@/lib/datetime'
-import { useAllBookings } from '@/hooks/useBookings'
 import { useBlockedDates } from '@/hooks/useBlockedDates'
 import { useAddBlockedDate, useRemoveBlockedDate } from '@/hooks/mutations'
-import { BookingsTable } from '@/components/tables/BookingsTable'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,7 +14,6 @@ import { Separator } from '@/components/ui/separator'
 
 export function HousekeepingPage() {
   const { data: blockedDates, isLoading: blockedLoading } = useBlockedDates()
-  const { data: bookings, isLoading, isError } = useAllBookings()
   const addBlockedDate = useAddBlockedDate()
   const removeBlockedDate = useRemoveBlockedDate()
 
@@ -64,7 +61,7 @@ export function HousekeepingPage() {
       <div>
         <h1 className="text-lg font-bold">Urus Tarikh</h1>
         <p className="text-sm text-muted-foreground">
-          Sekat tarikh (cuti sekolah, hari peperiksaan) supaya tidak boleh ditempah, dan urus tempahan sedia ada.
+          Sekat tarikh (cuti sekolah, hari peperiksaan) supaya tidak boleh ditempah.
         </p>
       </div>
 
@@ -143,15 +140,6 @@ export function HousekeepingPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Urus Tempahan</CardTitle>
-          <CardDescription>Sunting atau padam mana-mana tempahan sedia ada.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <BookingsTable data={bookings} isLoading={isLoading} isError={isError} canManage />
-        </CardContent>
-      </Card>
     </div>
   )
 }

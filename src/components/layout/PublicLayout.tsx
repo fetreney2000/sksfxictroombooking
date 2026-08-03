@@ -21,7 +21,7 @@ export function PublicLayout() {
             </div>
             <div>
               <h1 className="text-base font-extrabold leading-tight tracking-tight sm:text-lg">Sistem Tempahan Bilik ICT</h1>
-              <p className="text-xs text-muted-foreground">Tempah slot Bilik ICT untuk sesi PdPc</p>
+              <p className="text-xs text-muted-foreground">Tempah slot Bilik ICT untuk pelbagai kegunaan</p>
             </div>
           </div>
           <Link
