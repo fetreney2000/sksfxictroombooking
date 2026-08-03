@@ -75,10 +75,11 @@ export function ReportsPage() {
   }, [slots])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-lg font-bold">Laporan</h1>
+           <p className="eyebrow">Analitik</p>
+           <h1 className="mt-1 text-2xl font-extrabold tracking-tight">Laporan</h1>
           <p className="text-sm text-muted-foreground">Tapisan laporan dan eksport ke fail CSV.</p>
         </div>
         <Button onClick={exportCsv}>
@@ -87,7 +88,7 @@ export function ReportsPage() {
         </Button>
       </div>
 
-      <Card>
+       <Card className="app-card">
         <CardHeader>
           <CardTitle>Tapisan Laporan</CardTitle>
           <CardDescription>Tapis tempahan mengikut tarikh, guru atau kelas.</CardDescription>
@@ -142,7 +143,7 @@ export function ReportsPage() {
         </CardContent>
       </Card>
 
-      <Card>
+       <Card className="app-card">
         <CardHeader>
           <CardTitle>
             Hasil Laporan <span className="text-muted-foreground">({filtered.length} tempahan)</span>

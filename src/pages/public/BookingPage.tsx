@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Eraser } from 'lucide-react'
+import { Eraser, Sparkles } from 'lucide-react'
 import { useBookingFormStore, useHasFormData } from '@/store/bookingFormStore'
 import { StepIndicator } from '@/components/booking/StepIndicator'
 import { Step1Calendar } from '@/components/booking/Step1Calendar'
@@ -35,10 +35,11 @@ export function BookingPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-6">
-      <div className="text-center">
-        <h2 className="text-xl font-bold sm:text-2xl">Tempah Slot Bilik ICT</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+    <div className="mx-auto w-full max-w-4xl space-y-7">
+      <div className="mx-auto max-w-2xl text-center">
+        <div className="eyebrow mb-3 inline-flex items-center gap-2"><Sparkles className="h-3.5 w-3.5" /> Tempahan mudah dan pantas</div>
+        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Tempah slot Bilik ICT</h2>
+        <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-muted-foreground">
           Sila lengkapkan 4 langkah di bawah untuk membuat tempahan.
         </p>
       </div>

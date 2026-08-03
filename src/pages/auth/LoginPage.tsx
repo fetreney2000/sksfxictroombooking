@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
-import { AlertCircle, Loader2, MonitorSmartphone, Rocket } from 'lucide-react'
+import { AlertCircle, Loader2, MonitorSmartphone, Rocket, ShieldCheck } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
 import { loginSchema, bootstrapSchema, type LoginValues, type BootstrapValues } from '@/lib/validators'
 import { loginWithUsername, INVALID_CREDENTIALS } from '@/lib/auth'
@@ -94,14 +94,17 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 px-4 py-10">
-      <div className="w-full max-w-md space-y-6">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-10">
+      <div className="pointer-events-none absolute -left-32 top-0 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-cyan-300/15 blur-3xl" />
+      <div className="relative w-full max-w-md space-y-6">
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-xl shadow-primary/25">
             <MonitorSmartphone className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">Sistem Tempahan Bilik ICT</h1>
+             <p className="eyebrow mb-1">Portal rasmi</p>
+             <h1 className="text-2xl font-extrabold tracking-tight">Sistem Tempahan Bilik ICT</h1>
             <p className="text-sm text-muted-foreground">Log masuk untuk penyelia dan pentadbir</p>
           </div>
         </div>
@@ -163,9 +166,9 @@ export function LoginPage() {
           </Card>
         )}
 
-        <Card>
+         <Card className="app-card">
           <CardHeader>
-            <CardTitle>Log Masuk</CardTitle>
+           <CardTitle className="text-xl">Log Masuk</CardTitle>
             <CardDescription>Masukkan nama pengguna dan kata laluan anda.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -203,13 +206,14 @@ export function LoginPage() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full" disabled={submitting}>
+               <Button type="submit" className="h-11 w-full rounded-xl" disabled={submitting}>
                 {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Log Masuk
               </Button>
             </form>
           </CardContent>
-        </Card>
+         </Card>
+         <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="h-4 w-4 text-primary" /> Akses selamat untuk warga sekolah</div>
       </div>
     </div>
   )

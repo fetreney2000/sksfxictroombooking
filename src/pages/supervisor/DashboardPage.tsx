@@ -116,10 +116,11 @@ export function DashboardPage() {
   }, [bookings])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div>
-        <h1 className="text-lg font-bold">Papan Pemuka</h1>
-        <p className="text-sm text-muted-foreground">Ringkasan tempahan Makmal Komputer.</p>
+         <p className="eyebrow">Gambaran keseluruhan</p>
+         <h1 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">Papan Pemuka</h1>
+         <p className="mt-1 text-sm text-muted-foreground">Ringkasan aktiviti Bilik ICT dan penggunaan slot.</p>
       </div>
 
       {isLoading ? (
@@ -177,7 +178,7 @@ export function DashboardPage() {
         </Card>
 
         <div className="space-y-4">
-          <Card>
+     <Card className="app-card">
             <CardHeader>
               <CardTitle>Penggunaan Slot</CardTitle>
               <CardDescription>Minggu ini</CardDescription>
@@ -201,7 +202,7 @@ export function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
+     <Card className="app-card">
             <CardHeader>
               <CardTitle>Tempahan Akan Datang</CardTitle>
               <CardDescription>5 tempahan terdekat</CardDescription>

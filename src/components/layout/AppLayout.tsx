@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { BarChart3, BookOpenCheck, CalendarDays, CalendarX2, FileDown, Home, LogOut, MonitorSmartphone, School, Table2, UserCog, Users } from 'lucide-react'
+import { BarChart3, BookOpenCheck, CalendarDays, CalendarX2, FileDown, Home, LogOut, MonitorSmartphone, School, Table2, UserCog, Users, PanelLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCurrentUser, signOut } from '@/hooks/useAuth'
 import { Badge } from '@/components/ui/badge'
@@ -69,27 +69,28 @@ export function AppLayout() {
   }
 
   const SidebarContent = (
-    <div className="flex h-full flex-col gap-4 py-4">
-      <div className="flex items-center gap-3 px-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+    <div className="flex h-full flex-col gap-5 py-5">
+      <div className="flex items-center gap-3 px-5">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-black/10">
           <MonitorSmartphone className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-sm font-bold leading-tight">Sistem Tempahan Bilik ICT</p>
+           <p className="text-sm font-extrabold leading-tight text-sidebar-foreground">Sistem Tempahan Bilik ICT</p>
+           <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/55">Portal pengurusan</p>
         </div>
       </div>
-      <Separator />
-      <nav className="flex-1 space-y-1 px-3">
+      <Separator className="bg-sidebar-border" />
+      <nav className="flex-1 space-y-1.5 px-3">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
+                 isActive
+                   ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-black/10'
+                   : 'text-sidebar-foreground/65 hover:bg-sidebar-accent hover:text-sidebar-foreground',
               )
             }
           >
@@ -99,24 +100,27 @@ export function AppLayout() {
         ))}
       </nav>
       <div className="px-4">
-        <p className="truncate text-xs text-muted-foreground">@{profile?.username ?? ''}</p>
+           <p className="truncate text-xs text-sidebar-foreground/45">@{profile?.username ?? ''}</p>
       </div>
     </div>
   )
 
   return (
-    <div className="flex min-h-screen bg-muted/30">
-      <aside className="hidden w-60 shrink-0 border-r bg-background lg:block">{SidebarContent}</aside>
+    <div className="flex min-h-screen">
+      <aside className="hidden w-64 shrink-0 border-r border-sidebar-border bg-sidebar lg:block">{SidebarContent}</aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 items-center justify-between border-b bg-background px-4">
-          <h2 className="truncate text-base font-semibold">{title}</h2>
+         <header className="sticky top-0 z-20 flex h-[4.5rem] items-center justify-between border-b border-white/60 bg-white/70 px-4 backdrop-blur-xl sm:px-6">
+           <div className="flex items-center gap-3">
+             <PanelLeft className="h-5 w-5 text-primary lg:hidden" />
+             <div><p className="eyebrow hidden sm:block">Ruang kerja</p><h2 className="truncate text-lg font-extrabold tracking-tight">{title}</h2></div>
+           </div>
           {profile ? (
             <div className="flex items-center gap-1">
               <Link
                 to="/"
                 aria-label="Laman Tempahan"
-                className="inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                 className="hidden h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:inline-flex"
               >
                 <Home className="h-4 w-4" />
                 <span className="hidden sm:inline">Laman Tempahan</span>
@@ -124,7 +128,7 @@ export function AppLayout() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-9 gap-2 px-2">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                     <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-xs font-semibold text-primary-foreground shadow-sm">
                       {(displayName || '?').charAt(0).toUpperCase()}
                     </span>
                     <span className="max-w-[130px] truncate text-sm font-medium">{displayName}</span>
@@ -150,7 +154,7 @@ export function AppLayout() {
             </div>
           ) : null}
         </header>
-        <main className="flex-1 p-4 pb-20 sm:p-6 sm:pb-20 lg:pb-6">
+         <main className="flex-1 p-4 pb-24 sm:p-7 sm:pb-24 lg:p-8 lg:pb-8">
           <Outlet />
         </main>
       </div>

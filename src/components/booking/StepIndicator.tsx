@@ -23,7 +23,7 @@ export function StepIndicator({ current }: { current: BookingStep }) {
             <div className="flex flex-col items-center gap-1.5">
               <span
                 className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold transition-colors',
+                  'flex h-9 w-9 items-center justify-center rounded-xl border text-sm font-semibold transition-all',
                   active && 'border-primary bg-primary text-primary-foreground',
                   completed && 'border-primary bg-primary text-primary-foreground',
                   !active && !completed && 'border-border bg-background text-muted-foreground',

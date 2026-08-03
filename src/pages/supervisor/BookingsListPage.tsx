@@ -8,9 +8,10 @@ export function BookingsListPage() {
   const canManage = profile?.role === 'admin'
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-bold">Semua Tempahan</h1>
+         <p className="eyebrow">Operasi</p>
+         <h1 className="mt-1 text-2xl font-extrabold tracking-tight">Semua Tempahan</h1>
         <p className="text-sm text-muted-foreground">Senarai lengkap tempahan Makmal Komputer.</p>
       </div>
       <BookingsTable data={data} isLoading={isLoading} isError={isError} canManage={canManage} />
