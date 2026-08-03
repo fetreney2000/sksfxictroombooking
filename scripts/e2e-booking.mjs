@@ -172,17 +172,17 @@ async function main() {
   })
   console.log(`STEP1: admin-blocked date disabled=${blockedDisabled}`)
 
-  // --- Step 1: pick date 2026-08-03 (Monday) ---
-  const monday = new Date('2026-08-03T00:00:00.000Z')
+  // --- Step 1: pick date 2026-08-04 (Tuesday, a future weekday) ---
+  const bookingDate = new Date('2026-08-04T00:00:00.000Z')
   await page.evaluate((iso) => {
     const btn = Array.from(document.querySelectorAll('button[aria-label]')).find(
       (b) => b.getAttribute('aria-label') === iso,
     )
     btn.click()
-  }, monday.toISOString())
+  }, bookingDate.toISOString())
   await new Promise((r) => setTimeout(r, 300))
   const step1Text = await page.evaluate(() => document.body.innerText)
-  console.log(`STEP1: selected date shown=${step1Text.includes('Isnin, 3 Ogos 2026')}`)
+  console.log(`STEP1: selected date shown=${step1Text.includes('Selasa, 4 Ogos 2026')}`)
   await clickButton(page, 'Seterusnya')
   await new Promise((r) => setTimeout(r, 1200))
 
@@ -196,10 +196,11 @@ async function main() {
   for (const r of seenRequests) console.log('  ' + r)
   console.log('STEP2: blocked date info not shown here (expected)')
 
-  // Select first slot card
+  // Select first available slot card
   await page.evaluate(() => {
     const cards = Array.from(document.querySelectorAll('button[type="button"]')).filter((b) =>
-      b.textContent.includes('PAGI') || b.textContent.includes('TENGAHARI') || b.textContent.includes('PETANG'),
+      (b.textContent.includes('PAGI') || b.textContent.includes('TENGAHARI') || b.textContent.includes('PETANG')) &&
+      !b.disabled,
     )
     cards[0].click()
   })
@@ -267,7 +268,7 @@ async function main() {
   console.log(`POST payload: ${JSON.stringify(postedBooking)}`)
   const postOk =
     postedBooking &&
-    postedBooking.booking_date === '2026-08-03' &&
+    postedBooking.booking_date === '2026-08-04' &&
     postedBooking.teacher_id === '11111111-2222-4111-8111-000000000001' &&
     postedBooking.class_name === '5 Cerdik' &&
     postedBooking.purpose === 'Kelas PdPc TMK'
@@ -289,7 +290,7 @@ async function main() {
       (b) => b.getAttribute('aria-label') === iso,
     )
     btn.click()
-  }, monday.toISOString())
+  }, bookingDate.toISOString())
   await new Promise((r) => setTimeout(r, 300))
   await clickButton(page, 'Seterusnya')
   await new Promise((r) => setTimeout(r, 1200))
@@ -298,20 +299,20 @@ async function main() {
   console.log(`RACE: booked class shown=${text.includes('Kelas: 5 Cerdik')}`)
 
   // --- 23505 submit race: slot looks free but is taken at submit time ---
-  // Use a fresh date (2026-08-04) where slot 1 appears open.
+  // Use a fresh date (2026-08-06) where slot 1 appears open.
   await page.evaluate(() => {
     document.querySelectorAll('button[aria-label]').forEach(() => {})
   })
   await page.evaluate(() => window.history.pushState({}, '', '/'))
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle2', timeout: 30000 })
   await new Promise((r) => setTimeout(r, 800))
-  const tuesday = new Date('2026-08-04T00:00:00.000Z')
+  const freshDate = new Date('2026-08-06T00:00:00.000Z')
   await page.evaluate((iso) => {
     const btn = Array.from(document.querySelectorAll('button[aria-label]')).find(
       (b) => b.getAttribute('aria-label') === iso,
     )
     btn.click()
-  }, tuesday.toISOString())
+  }, freshDate.toISOString())
   await new Promise((r) => setTimeout(r, 300))
   await clickButton(page, 'Seterusnya')
   await new Promise((r) => setTimeout(r, 1200))
@@ -319,7 +320,8 @@ async function main() {
   // Select first available slot
   await page.evaluate(() => {
     const cards = Array.from(document.querySelectorAll('button[type="button"]')).filter((b) =>
-      b.textContent.includes('PAGI') || b.textContent.includes('TENGAHARI') || b.textContent.includes('PETANG'),
+      (b.textContent.includes('PAGI') || b.textContent.includes('TENGAHARI') || b.textContent.includes('PETANG')) &&
+      !b.disabled,
     )
     cards[0].click()
   })
@@ -351,7 +353,7 @@ async function main() {
 
   // Arm the conflict, then submit.
   forceConflictSlot = '11111111-1111-4111-8111-000000000001'
-  forceConflictDate = '2026-08-04'
+  forceConflictDate = '2026-08-06'
   await clickButton(page, 'Hantar Tempahan')
   await new Promise((r) => setTimeout(r, 1800))
   text = await page.evaluate(() => document.body.innerText)

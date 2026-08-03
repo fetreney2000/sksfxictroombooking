@@ -131,22 +131,23 @@ async function main() {
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle2', timeout: 30000 })
   await new Promise((r) => setTimeout(r, 1000))
 
-  // --- Step 1: pick Monday 2026-08-03 ---
-  const monday = new Date('2026-08-03T00:00:00.000Z')
+  // --- Step 1: pick Tuesday 2026-08-04 (a future weekday) ---
+  const bookingDate = new Date('2026-08-04T00:00:00.000Z')
   await page.evaluate((iso) => {
     const btn = Array.from(document.querySelectorAll('button[aria-label]')).find(
       (b) => b.getAttribute('aria-label') === iso,
     )
     btn.click()
-  }, monday.toISOString())
+  }, bookingDate.toISOString())
   await new Promise((r) => setTimeout(r, 300))
   await clickButton(page, 'Seterusnya')
   await new Promise((r) => setTimeout(r, 1200))
 
-  // --- Step 2: pick first slot ---
+  // --- Step 2: pick first available slot ---
   await page.evaluate(() => {
     const cards = Array.from(document.querySelectorAll('button[type="button"]')).filter((b) =>
-      b.textContent.includes('PAGI') || b.textContent.includes('TENGAHARI') || b.textContent.includes('PETANG'),
+      (b.textContent.includes('PAGI') || b.textContent.includes('TENGAHARI') || b.textContent.includes('PETANG')) &&
+      !b.disabled,
     )
     cards[0].click()
   })

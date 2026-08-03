@@ -148,6 +148,29 @@ export function isPastDate(date: Date): boolean {
   return date.getTime() < getTodayInKL().getTime()
 }
 
+/** Convert `HH:mm` or `HH:mm:ss` into minutes since midnight. */
+export function timeToMinutes(time: string): number {
+  const match = /^(\d{1,2}):(\d{2})/.exec(time)
+  if (!match) return 0
+  return Number(match[1]) * 60 + Number(match[2])
+}
+
+/** Current wall-clock time in KL, as minutes since midnight. */
+export function getNowMinutesInKL(): number {
+  const now = new Date()
+  return (
+    Number(formatInTimeZone(now, TIMEZONE, 'H')) * 60 +
+    Number(formatInTimeZone(now, TIMEZONE, 'm'))
+  )
+}
+
+/** True when a slot on the given (KL-shim) date has already started in KL time.
+ *  Only today's slots can be "past"; future dates always return false. */
+export function isSlotPast(date: Date, startTime: string): boolean {
+  if (!isSameDay(date, getTodayInKL())) return false
+  return timeToMinutes(startTime) <= getNowMinutesInKL()
+}
+
 /**
  * Build the weeks (array of rows, each of 7 cells) for a month view.
  * Leading/trailing cells from adjacent months are included as `null`

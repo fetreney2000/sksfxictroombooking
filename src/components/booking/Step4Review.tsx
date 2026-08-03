@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CalendarCheck2, Loader2, PartyPopper } from 'lucide-react'
 import { toast } from 'sonner'
-import { formatDateDisplay, formatDateForDB, formatTime12h } from '@/lib/datetime'
+import { formatDateDisplay, formatDateForDB, formatTime12h, isPastDate, isSlotPast } from '@/lib/datetime'
 import { useBookingFormStore } from '@/store/bookingFormStore'
 import { useBookingsForDate, useSubmitBooking } from '@/hooks/useBookings'
 import { useTeachers } from '@/hooks/useTeachers'
@@ -30,6 +30,18 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
 
   const handleSubmit = async () => {
     if (!date || !timeSlotId || !teacherId) return
+    if (isPastDate(date)) {
+      toast.error('Maaf, tarikh ini sudah berlalu. Sila pilih tarikh lain.')
+      setSubmitting(false)
+      onBackToSlots()
+      return
+    }
+    if (slot && isSlotPast(date, slot.start_time)) {
+      toast.error('Maaf, slot ini telah bermula. Sila pilih slot lain.')
+      setSubmitting(false)
+      onBackToSlots()
+      return
+    }
     setSubmitting(true)
     try {
       const { data: freshBookings } = await refetch()

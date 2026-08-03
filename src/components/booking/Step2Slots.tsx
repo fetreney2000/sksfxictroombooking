@@ -1,6 +1,7 @@
+import { useEffect } from 'react'
 import { AlertCircle, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { formatDateDisplay, formatTime12h } from '@/lib/datetime'
+import { formatDateDisplay, formatTime12h, isSlotPast } from '@/lib/datetime'
 import { useBookingFormStore } from '@/store/bookingFormStore'
 import { useBookingsForDate } from '@/hooks/useBookings'
 import { useTimeSlots } from '@/hooks/useTimeSlots'
@@ -32,7 +33,20 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
     }
   }
 
-  const anySlotAvailable = slots?.some((s) => !bookedSlotMap.has(s.id)) ?? false
+  // Today's slots whose start time has already passed cannot be booked.
+  const isUnavailablePast = (startTime: string) => (date ? isSlotPast(date, startTime) : false)
+
+  // Drop the selection if the chosen slot has just become a past slot.
+  useEffect(() => {
+    if (!date || !timeSlotId || !slots) return
+    const selected = slots.find((s) => s.id === timeSlotId)
+    if (selected && isSlotPast(date, selected.start_time)) {
+      setTimeSlotId(null)
+    }
+  }, [date, timeSlotId, slots, setTimeSlotId])
+
+  const anySlotAvailable =
+    slots?.some((s) => !bookedSlotMap.has(s.id) && !isUnavailablePast(s.start_time)) ?? false
 
   return (
     <Card>
@@ -71,18 +85,20 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {slots?.map((slot) => {
               const booked = bookedSlotMap.has(slot.id)
+              const past = isUnavailablePast(slot.start_time)
+              const unavailable = booked || past
               const selected = timeSlotId === slot.id
               return (
                 <button
                   key={slot.id}
                   type="button"
-                  disabled={booked}
+                  disabled={unavailable}
                   onClick={() => setTimeSlotId(slot.id)}
                   aria-pressed={selected}
                   className={cn(
                     'flex flex-col items-start gap-1.5 rounded-lg border p-4 text-left transition-colors',
-                    booked && 'cursor-not-allowed border-muted bg-muted/40 opacity-60',
-                    !booked && !selected && 'hover:border-primary/50 hover:bg-accent',
+                    unavailable && 'cursor-not-allowed border-muted bg-muted/40 opacity-60',
+                    !unavailable && !selected && 'hover:border-primary/50 hover:bg-accent',
                     selected && 'border-primary bg-primary/10 ring-1 ring-primary',
                   )}
                 >
@@ -90,15 +106,17 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
                     <span className={cn('text-sm font-semibold', selected && 'text-primary')}>
                       {formatTime12h(slot.start_time)} – {formatTime12h(slot.end_time)}
                     </span>
-                    {booked ? (
+                    {unavailable ? (
                       <Badge variant="secondary" className="shrink-0">
-                        Telah Ditempah
+                        {past ? 'Masa Berlalu' : 'Telah Ditempah'}
                       </Badge>
                     ) : selected ? (
                       <Badge className="shrink-0">Dipilih</Badge>
                     ) : null}
                   </div>
-                  {booked ? (
+                  {past ? (
+                    <span className="text-xs text-muted-foreground">Slot telah bermula</span>
+                  ) : booked ? (
                     <span className="text-xs text-muted-foreground">
                       Kelas: {bookedSlotMap.get(slot.id) || '-'}
                     </span>
@@ -112,7 +130,7 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
         )}
         {slots && slots.length > 0 && !anySlotAvailable && (
           <p className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
-            Tiada slot tersedia pada tarikh ini. Semua slot telah ditempah.
+            Tiada slot tersedia pada waktu ini. Semua slot telah berlalu atau ditempah.
           </p>
         )}
         <div className="flex items-center justify-between gap-2 border-t pt-4">
