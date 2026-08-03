@@ -295,6 +295,12 @@ async function main() {
   text = await page.evaluate(() => document.body.innerText)
   console.log(`STEP4: renders review=${text.includes('Semak & Hantar')}`)
   console.log(`STEP4: shows summary fields=${text.includes('Cikgu Siti Aminah') && text.includes('5 Cerdik') && text.includes('Kelas PdPc TMK')}`)
+  const slotLineCount = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll('p')).filter((p) =>
+      p.textContent?.includes('PAGI') || p.textContent?.includes('TENGAHARI') || p.textContent?.includes('PETANG'),
+    ).length
+  })
+  console.log(`STEP4: slots stacked as separate lines=${slotLineCount === 2}`)
   console.log('--- STEP4 body text (first 1200 chars) ---')
   console.log(text.slice(0, 1200).replace(/\n+/g, ' | '))
 

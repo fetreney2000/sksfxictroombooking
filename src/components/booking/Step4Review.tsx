@@ -30,9 +30,19 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
     (slots ?? [])
       .filter((s) => timeSlotIds.includes(s.id))
       .sort((a, b) => a.start_time.localeCompare(b.start_time)) ?? []
-  const slotSummary = selectedSlots
-    .map((s) => `${formatTime12h(s.start_time)} – ${formatTime12h(s.end_time)}`)
-    .join(', ')
+
+  const slotTimes =
+    selectedSlots.length > 0 ? (
+      <div className="space-y-1">
+        {selectedSlots.map((s) => (
+          <p key={s.id}>
+            {formatTime12h(s.start_time)} – {formatTime12h(s.end_time)}
+          </p>
+        ))}
+      </div>
+    ) : (
+      '-'
+    )
 
   const handleSubmit = async () => {
     if (!date || timeSlotIds.length === 0 || !teacherId) return
@@ -94,10 +104,10 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
               <span className="font-medium text-muted-foreground">Tarikh: </span>
               {date ? formatDateDisplay(date) : '-'}
             </p>
-            <p>
+            <div className="text-left">
               <span className="font-medium text-muted-foreground">Slot: </span>
-              {slotSummary || '-'}
-            </p>
+              {slotTimes}
+            </div>
             <p>
               <span className="font-medium text-muted-foreground">Guru: </span>
               {teacher?.full_name ?? '-'}
@@ -131,7 +141,7 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
         <div className="space-y-3 rounded-lg border p-4 text-sm">
           <SummaryRow label="Tarikh" value={date ? formatDateDisplay(date) : '-'} />
           <Separator />
-          <SummaryRow label="Slot Masa" value={slotSummary || '-'} />
+          <SummaryRow label="Slot Masa" value={slotTimes} />
           <Separator />
           <SummaryRow label="Bilangan Slot" value={selectedSlots.length > 0 ? `${selectedSlots.length} slot` : '-'} />
           <Separator />
@@ -156,11 +166,11 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
   )
 }
 
-function SummaryRow({ label, value }: { label: string; value: string }) {
+function SummaryRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-4">
       <span className="shrink-0 text-muted-foreground">{label}</span>
-      <span className="text-right font-medium">{value}</span>
+      <div className="text-right font-medium">{value}</div>
     </div>
   )
 }
