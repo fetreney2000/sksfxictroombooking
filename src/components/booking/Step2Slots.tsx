@@ -108,18 +108,18 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
                     </span>
                     {unavailable ? (
                       <Badge variant="secondary" className="shrink-0">
-                        {past ? 'Masa Berlalu' : 'Telah Ditempah'}
+                        {booked ? 'Telah Ditempah' : 'Masa Berlalu'}
                       </Badge>
                     ) : selected ? (
                       <Badge className="shrink-0">Dipilih</Badge>
                     ) : null}
                   </div>
-                  {past ? (
-                    <span className="text-xs text-muted-foreground">Slot telah bermula</span>
-                  ) : booked ? (
+                  {booked ? (
                     <span className="text-xs text-muted-foreground">
                       Kelas: {bookedSlotMap.get(slot.id) || '-'}
                     </span>
+                  ) : past ? (
+                    <span className="text-xs text-muted-foreground">Slot telah bermula</span>
                   ) : (
                     <span className="text-xs text-muted-foreground">Slot tersedia</span>
                   )}

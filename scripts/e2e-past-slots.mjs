@@ -44,6 +44,19 @@ const expectedPast = SLOTS.filter((s) => timeToMinutes(s.start_time) <= nowMinut
 const klDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kuala_Lumpur' }).format(new Date())
 const todayISO = `${klDate}T00:00:00.000Z`
 
+// A booking on today's first slot: both past AND booked.
+const bookedToday = {
+  id: 'bk-past-today',
+  booking_date: klDate,
+  time_slot_id: SLOTS[0].id,
+  teacher_id: '11111111-2222-4111-8111-000000000001',
+  class_name: '5 Cerdik',
+  purpose: 'Kelas PdPc',
+  created_at: '2026-08-01T03:00:00.000Z',
+  teachers: { id: '11111111-2222-4111-8111-000000000001', full_name: 'Cikgu Siti Aminah' },
+  time_slots: { id: SLOTS[0].id, start_time: SLOTS[0].start_time, end_time: SLOTS[0].end_time, sort_order: 1 },
+}
+
 async function main() {
   const browser = await puppeteer.launch({
     executablePath: EDGE,
@@ -83,7 +96,7 @@ async function main() {
       return
     }
     if (path.endsWith('/bookings')) {
-      req.respond({ status: 200, headers: corsHeaders, body: '[]' })
+      req.respond({ status: 200, headers: corsHeaders, body: JSON.stringify([bookedToday]) })
       return
     }
     if (
@@ -130,11 +143,15 @@ async function main() {
       count: buttons.length,
       disabled: buttons.filter((b) => b.disabled).length,
       masaBerlalu: buttons.filter((b) => b.textContent.includes('Masa Berlalu')).length,
+      telahDitempah: buttons.filter((b) => b.textContent.includes('Telah Ditempah')).length,
+      kelasInfo: buttons.filter((b) => b.textContent.includes('Kelas: 5 Cerdik')).length,
     }
   })
-  console.log(`SLOTS: total=${slotState.count} disabled=${slotState.disabled} masaBerlalu=${slotState.masaBerlalu}`)
+  console.log(`SLOTS: total=${slotState.count} disabled=${slotState.disabled} masaBerlalu=${slotState.masaBerlalu} telahDitempah=${slotState.telahDitempah}`)
   console.log(`SLOTS: disabled matches expected past=${slotState.disabled === expectedPast}`)
-  console.log(`SLOTS: every disabled shows Masa Berlalu=${slotState.disabled === slotState.masaBerlalu}`)
+  console.log(`SLOTS: booked-past slot shows Telah Ditempah=${slotState.telahDitempah === 1}`)
+  console.log(`SLOTS: booked-past slot shows booked class=${slotState.kelasInfo === 1}`)
+  console.log(`SLOTS: non-booked past slots show Masa Berlalu=${expectedPast >= 1 ? slotState.masaBerlalu === expectedPast - 1 : slotState.masaBerlalu === 0}`)
 
   // "Seterusnya" must stay disabled since no slot can be selected
   const nextDisabled = await page.evaluate(() => {

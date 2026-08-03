@@ -1,7 +1,14 @@
 import { useMemo } from 'react'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { CalendarDays, GraduationCap, TrendingUp, Trophy, Users } from 'lucide-react'
-import { addDaysToDate, formatDateForDB, formatDateShort, getTodayInKL } from '@/lib/datetime'
+import {
+  addDaysToDate,
+  formatDateForDB,
+  formatDateShort,
+  getTodayInKL,
+  isPastDate,
+  isSlotPast,
+} from '@/lib/datetime'
 import { useAllBookings } from '@/hooks/useBookings'
 import { useTimeSlots } from '@/hooks/useTimeSlots'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -88,9 +95,25 @@ export function DashboardPage() {
     }))
   }, [bookings])
 
-  const today = getTodayInKL()
-  const todayStr = formatDateForDB(today)
-  const recent = (bookings ?? []).filter((b) => b.booking_date >= todayStr).slice(0, 5)
+  // Upcoming bookings: dates from today onwards, but today's slots whose start
+  // time has already passed are excluded.
+  const recent = useMemo(() => {
+    const list = bookings ?? []
+    return list
+      .filter((b) => {
+        const date = new Date(`${b.booking_date}T00:00:00.000Z`)
+        if (isPastDate(date)) return false
+        if (b.time_slots?.start_time && isSlotPast(date, b.time_slots.start_time)) return false
+        return true
+      })
+      .sort((a, b) => {
+        if (a.booking_date !== b.booking_date) return a.booking_date.localeCompare(b.booking_date)
+        const at = a.time_slots?.start_time ?? ''
+        const bt = b.time_slots?.start_time ?? ''
+        return at.localeCompare(bt)
+      })
+      .slice(0, 5)
+  }, [bookings])
 
   return (
     <div className="space-y-6">
@@ -210,7 +233,7 @@ function StatCard({ icon, label, value, hint }: { icon: React.ReactNode; label: 
   return (
     <Card>
       <CardContent className="flex items-start justify-between p-5">
-        <div>
+        <div className="min-w-0">
           <p className="text-sm text-muted-foreground">{label}</p>
           <p className="mt-1 truncate text-xl font-bold" title={value}>
             {value}
