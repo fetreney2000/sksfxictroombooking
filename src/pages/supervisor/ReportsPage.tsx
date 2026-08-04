@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
-import { FileDown, FileSpreadsheet } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, FileDown, FileSpreadsheet } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDateCompact, formatDateTimeDisplay, formatTime12h } from '@/lib/datetime'
 import { useAllBookings } from '@/hooks/useBookings'
 import { useTeachers } from '@/hooks/useTeachers'
+import { useKelas } from '@/hooks/useKelas'
 import { useTimeSlots } from '@/hooks/useTimeSlots'
 import type { BookingWithDetails } from '@/types/shared'
 import { Button } from '@/components/ui/button'
@@ -14,26 +15,47 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
+type SortKey = 'date' | 'slot' | 'teacher' | 'class' | 'purpose' | 'created'
+type SortDirection = 'asc' | 'desc'
+
 export function ReportsPage() {
   const { data: bookings, isLoading } = useAllBookings()
   const { data: teachers } = useTeachers(true)
+  const { data: kelas } = useKelas(true)
   const { data: slots } = useTimeSlots(true)
 
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [teacherFilter, setTeacherFilter] = useState('all')
   const [classFilter, setClassFilter] = useState('')
+  const [sortKey, setSortKey] = useState<SortKey>('date')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
   const filtered = useMemo(() => {
     const list = bookings ?? []
-    return list.filter((b) => {
+    const matching = list.filter((b) => {
       if (dateFrom && b.booking_date < dateFrom) return false
       if (dateTo && b.booking_date > dateTo) return false
       if (teacherFilter !== 'all' && b.teacher_id !== teacherFilter) return false
-      if (classFilter && !b.class_name.toLowerCase().includes(classFilter.toLowerCase())) return false
+       if (classFilter && b.class_name !== classFilter) return false
       return true
     })
-  }, [bookings, dateFrom, dateTo, teacherFilter, classFilter])
+
+    return matching.sort((a, b) => {
+      const aValue = getSortValue(a, sortKey, slots)
+      const bValue = getSortValue(b, sortKey, slots)
+      return aValue.localeCompare(bValue, 'ms', { numeric: true }) * (sortDirection === 'asc' ? 1 : -1)
+    })
+  }, [bookings, dateFrom, dateTo, teacherFilter, classFilter, sortKey, sortDirection, slots])
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDirection((direction) => (direction === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDirection('asc')
+    }
+  }
 
   const exportCsv = () => {
     if (filtered.length === 0) {
@@ -133,11 +155,19 @@ export function ReportsPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="report-class">Kelas</Label>
-              <Input
-                id="report-class"
-                value={classFilter}
-                onChange={(e) => setClassFilter(e.target.value)}
-              />
+               <Select value={classFilter || 'all'} onValueChange={(value) => setClassFilter(value === 'all' ? '' : value)}>
+                 <SelectTrigger id="report-class" className="w-full">
+                   <SelectValue placeholder="Semua Kelas" />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="all">Semua Kelas</SelectItem>
+                   {kelas?.map((item) => (
+                     <SelectItem key={item.id} value={item.name}>
+                       {item.name}
+                     </SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
             </div>
           </div>
         </CardContent>
@@ -167,12 +197,12 @@ export function ReportsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Tarikh</TableHead>
-                    <TableHead>Slot Masa</TableHead>
-                    <TableHead>Nama Guru</TableHead>
-                    <TableHead>Kelas</TableHead>
-                    <TableHead>Tujuan</TableHead>
-                    <TableHead>Tarikh Dibuat</TableHead>
+                     <SortableHead label="Tarikh" sortKey="date" activeKey={sortKey} direction={sortDirection} onSort={handleSort} />
+                     <SortableHead label="Slot Masa" sortKey="slot" activeKey={sortKey} direction={sortDirection} onSort={handleSort} />
+                     <SortableHead label="Nama Guru" sortKey="teacher" activeKey={sortKey} direction={sortDirection} onSort={handleSort} />
+                     <SortableHead label="Kelas" sortKey="class" activeKey={sortKey} direction={sortDirection} onSort={handleSort} />
+                     <SortableHead label="Tujuan" sortKey="purpose" activeKey={sortKey} direction={sortDirection} onSort={handleSort} />
+                     <SortableHead label="Tarikh Dibuat" sortKey="created" activeKey={sortKey} direction={sortDirection} onSort={handleSort} />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -212,4 +242,51 @@ export function ReportsPage() {
 function formatSlot(slotMap: Map<string, { start_time: string; end_time: string }>, b: BookingWithDetails): string {
   const slot = slotMap.get(b.time_slot_id)
   return slot ? `${formatTime12h(slot.start_time)} – ${formatTime12h(slot.end_time)}` : '-'
+}
+
+function getSortValue(
+  booking: BookingWithDetails,
+  key: SortKey,
+  slots: Array<{ id: string; start_time: string; end_time: string }> | undefined,
+): string {
+  if (key === 'date') return booking.booking_date
+  if (key === 'slot') {
+    const slot = slots?.find((item) => item.id === booking.time_slot_id)
+    return slot?.start_time ?? ''
+  }
+  if (key === 'teacher') return booking.teachers?.full_name ?? ''
+  if (key === 'class') return booking.class_name
+  if (key === 'purpose') return booking.purpose
+  return booking.created_at
+}
+
+function SortableHead({
+  label,
+  sortKey,
+  activeKey,
+  direction,
+  onSort,
+}: {
+  label: string
+  sortKey: SortKey
+  activeKey: SortKey
+  direction: SortDirection
+  onSort: (key: SortKey) => void
+}) {
+  const active = sortKey === activeKey
+  const Icon = active ? (direction === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown
+
+  return (
+    <TableHead>
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className="inline-flex items-center gap-1.5 rounded-md py-1 font-semibold transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-label={`Susun mengikut ${label}`}
+      >
+        {label}
+        <Icon className="h-3.5 w-3.5" />
+      </button>
+    </TableHead>
+  )
 }
