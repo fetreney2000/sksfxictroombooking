@@ -165,6 +165,14 @@ export function AppLayout() {
         className="fixed inset-x-0 bottom-0 z-40 border-t bg-background shadow-[0_-1px_0_rgba(0,0,0,0.05)] lg:hidden"
       >
         <div className="flex overflow-x-auto">
+          <NavLink
+            to="/"
+            aria-label="Laman Tempahan"
+            className="flex min-w-[68px] flex-1 flex-col items-center gap-1 px-2 py-2 text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Home className="h-5 w-5" />
+            <span className="whitespace-nowrap">Laman Tempahan</span>
+          </NavLink>
           {navItems.map((item) => (
             <NavLink
               key={item.to}

@@ -28,10 +28,13 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
   const loading = slotsLoading || bookingsLoading
   const error = slotsError ?? bookingsError
 
-  const bookedSlotMap = new Map<string, string>()
+  const bookedSlotMap = new Map<string, { teacher: string; className: string }>()
   if (bookings) {
     for (const b of bookings) {
-      bookedSlotMap.set(b.time_slot_id, b.class_name)
+      bookedSlotMap.set(b.time_slot_id, {
+        teacher: b.teachers?.full_name ?? '-',
+        className: b.class_name,
+      })
     }
   }
 
@@ -128,8 +131,9 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
                     ) : null}
                   </div>
                   {booked ? (
-                    <span className="text-xs text-muted-foreground">
-                      Kelas: {bookedSlotMap.get(slot.id) || '-'}
+                    <span className="space-y-0.5 text-xs text-muted-foreground">
+                      <span className="block">Guru: {bookedSlotMap.get(slot.id)?.teacher || '-'}</span>
+                      <span className="block">Kelas: {bookedSlotMap.get(slot.id)?.className || '-'}</span>
                     </span>
                   ) : past ? (
                     <span className="text-xs text-muted-foreground">Slot telah bermula</span>
