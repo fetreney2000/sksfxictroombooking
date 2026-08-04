@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CalendarX2, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { formatDateCompact, formatDateForDB, getTodayInKL } from '@/lib/datetime'
+import { formatDBDate, formatDateForDB, getTodayInKL } from '@/lib/datetime'
 import { useBlockedDates } from '@/hooks/useBlockedDates'
 import { useAddBlockedDate, useRemoveBlockedDate } from '@/hooks/mutations'
 import { Badge } from '@/components/ui/badge'
@@ -121,7 +121,7 @@ export function HousekeepingPage() {
                     className="flex items-center justify-between gap-3 rounded-lg border px-4 py-2.5"
                   >
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary">{formatDateCompact(new Date(`${bd.blocked_date}T00:00:00.000Z`))}</Badge>
+                       <Badge variant="secondary">{formatDBDate(bd.blocked_date)}</Badge>
                       {bd.reason && <span className="text-sm text-muted-foreground">{bd.reason}</span>}
                     </div>
                     <Button

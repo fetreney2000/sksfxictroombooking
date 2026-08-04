@@ -47,6 +47,16 @@ export function parseDBDate(dbDate: string): Date {
   return new Date(`${dbDate}T00:00:00.000Z`)
 }
 
+/** Format a DB date string without relying on the browser timezone. */
+export function formatDBDate(dbDate: string, format = 'd MMM yyyy'): string {
+  return formatInTimeZone(parseDBDate(dbDate), 'UTC', format, { locale: ms })
+}
+
+/** Return today's KL date for date-only values such as export filenames. */
+export function getTodayDateStringInKL(): string {
+  return formatInTimeZone(new Date(), TIMEZONE, 'yyyy-MM-dd')
+}
+
 /** Format a KL-shim Date as `yyyy-MM-dd` (for `booking_date`). */
 export function formatDateForDB(date: Date): string {
   return formatInTimeZone(date, 'UTC', 'yyyy-MM-dd')

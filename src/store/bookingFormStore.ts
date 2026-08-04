@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { isSameDay } from '@/lib/datetime'
 
 export type BookingStep = 1 | 2 | 3 | 4
 
@@ -34,7 +35,7 @@ export const useBookingFormStore = create<BookingFormStore>((set) => ({
     set((state) => ({
       date,
       timeSlotIds:
-        state.date && date && state.date.toISOString() === date.toISOString() ? state.timeSlotIds : [],
+        state.date && date && isSameDay(state.date, date) ? state.timeSlotIds : [],
     })),
   setTimeSlotIds: (timeSlotIds) =>
     set((state) => ({

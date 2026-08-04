@@ -4,7 +4,8 @@ import { CalendarDays, GraduationCap, TrendingUp, Trophy, Users } from 'lucide-r
 import {
   addDaysToDate,
   formatDateForDB,
-  formatDateShort,
+  formatDBDate,
+  parseDBDate,
   getTodayInKL,
   isPastDate,
   isSlotPast,
@@ -90,7 +91,7 @@ export function DashboardPage() {
     }
     return Array.from(map.entries()).map(([date, count]) => ({
       date,
-      label: formatDateShort(new Date(`${date}T00:00:00.000Z`)),
+       label: formatDBDate(date),
       count,
     }))
   }, [bookings])
@@ -101,7 +102,7 @@ export function DashboardPage() {
     const list = bookings ?? []
     return list
       .filter((b) => {
-        const date = new Date(`${b.booking_date}T00:00:00.000Z`)
+        const date = parseDBDate(b.booking_date)
         if (isPastDate(date)) return false
         if (b.time_slots?.start_time && isSlotPast(date, b.time_slots.start_time)) return false
         return true
@@ -146,7 +147,7 @@ export function DashboardPage() {
           <StatCard
             icon={<Trophy className="h-5 w-5" />}
             label="Hari Paling Sibuk"
-            value={stats.busiestDate !== 'Tiada data' ? formatDateShort(new Date(`${stats.busiestDate}T00:00:00.000Z`)) : stats.busiestDate}
+             value={stats.busiestDate !== 'Tiada data' ? formatDBDate(stats.busiestDate, 'd MMMM yyyy') : stats.busiestDate}
             hint={stats.busiestCount > 0 ? `${stats.busiestCount} tempahan` : '-'}
           />
           <StatCard
@@ -216,7 +217,7 @@ export function DashboardPage() {
                     <li key={b.id} className="flex items-center justify-between gap-2 text-sm">
                       <span className="font-medium">{b.teachers?.full_name ?? '-'}</span>
                       <span className="text-xs text-muted-foreground">
-                        {formatDateShort(new Date(`${b.booking_date}T00:00:00.000Z`))} · {b.class_name}
+                         {formatDBDate(b.booking_date, 'd MMMM yyyy')} · {b.class_name}
                       </span>
                     </li>
                   ))}

@@ -12,7 +12,7 @@ import {
 } from '@tanstack/react-table'
 import { ArrowDown, ArrowUp, ArrowUpDown, Pencil, Search, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { formatDateCompact, formatDateForDB, formatDateTimeDisplay, formatTime12h, getTodayInKL } from '@/lib/datetime'
+import { formatDBDate, formatDateForDB, formatDateTimeDisplay, formatTime12h, getTodayInKL } from '@/lib/datetime'
 import type { BookingWithDetails } from '@/types/shared'
 import { useDeleteBooking, useUpdateBooking } from '@/hooks/mutations'
 import { useTeachers } from '@/hooks/useTeachers'
@@ -81,10 +81,9 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
         header: 'Tarikh',
         cell: ({ row }) => {
           const b = row.original
-          const d = new Date(`${b.booking_date}T00:00:00.000Z`)
           return (
             <div>
-              <div className="font-medium">{formatDateCompact(d)}</div>
+              <div className="font-medium">{formatDBDate(b.booking_date)}</div>
             </div>
           )
         },

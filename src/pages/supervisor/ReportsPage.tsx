@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, ArrowUpDown, FileDown, FileSpreadsheet } from 'lucide-react'
 import { toast } from 'sonner'
-import { formatDateCompact, formatDateTimeDisplay, formatTime12h } from '@/lib/datetime'
+import { formatDBDate, formatDateTimeDisplay, formatTime12h, getTodayDateStringInKL } from '@/lib/datetime'
 import { useAllBookings } from '@/hooks/useBookings'
 import { useTeachers } from '@/hooks/useTeachers'
 import { useKelas } from '@/hooks/useKelas'
@@ -82,7 +82,7 @@ export function ReportsPage() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `laporan-tempahan-makmal-${new Date().toISOString().slice(0, 10)}.csv`
+     link.download = `laporan-tempahan-makmal-${getTodayDateStringInKL()}.csv`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -209,7 +209,7 @@ export function ReportsPage() {
                   {filtered.slice(0, 50).map((b) => (
                     <TableRow key={b.id}>
                       <TableCell className="whitespace-nowrap">
-                        {formatDateCompact(new Date(`${b.booking_date}T00:00:00.000Z`))}
+                         {formatDBDate(b.booking_date)}
                       </TableCell>
                       <TableCell className="whitespace-nowrap">
                         {formatSlot(slotMap, b)}

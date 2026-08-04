@@ -2,6 +2,7 @@ import { Link, Outlet } from 'react-router-dom'
 import { ArrowRight, MonitorSmartphone } from 'lucide-react'
 import { isSupabaseConfigured } from '@/lib/supabaseClient'
 import { useCurrentUser } from '@/hooks/useAuth'
+import { getTodayInKL } from '@/lib/datetime'
 
 export function PublicLayout() {
   const { profile } = useCurrentUser()
@@ -37,7 +38,7 @@ export function PublicLayout() {
       </main>
       <footer className="border-t border-white/60 bg-white/50 py-5">
         <p className="text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Sistem Tempahan Bilik ICT SK SFX Keningau
+           © {getTodayInKL().getUTCFullYear()} Sistem Tempahan Bilik ICT SK SFX Keningau
         </p>
       </footer>
     </div>
