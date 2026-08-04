@@ -164,7 +164,8 @@ export function AppLayout() {
         aria-label="Navigasi utama"
         className="fixed inset-x-0 bottom-0 z-40 border-t bg-background shadow-[0_-1px_0_rgba(0,0,0,0.05)] lg:hidden"
       >
-        <div className="flex min-w-max overflow-x-auto px-1">
+        <div className="flex w-full overflow-x-auto overscroll-x-contain px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex min-w-max">
           <NavLink
             to="/"
             aria-label="Laman Tempahan"
@@ -188,6 +189,7 @@ export function AppLayout() {
               <span className="whitespace-nowrap">{item.label}</span>
             </NavLink>
           ))}
+          </div>
         </div>
       </nav>
     </div>
