@@ -53,7 +53,7 @@ export function Calendar({ selected, onSelect, disabledDates = new Set(), classN
         </Button>
         <div className="flex flex-col items-center">
           <div className="text-sm font-semibold">{formatMonthYear(viewMonth)}</div>
-          <button type="button" onClick={goToToday} className="text-xs text-primary hover:underline">
+            <button type="button" onClick={goToToday} className="cursor-pointer text-xs text-primary hover:underline">
             Hari ini
           </button>
         </div>

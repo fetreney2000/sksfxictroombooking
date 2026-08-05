@@ -117,6 +117,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+  a,
+  summary,
+  [role='button'],
+  [data-slot='select-trigger'],
+  [data-slot='dropdown-menu-item'],
+  [data-slot='combobox-trigger'] {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
   body {
     @apply bg-background text-foreground antialiased;
     background-image: radial-gradient(circle at 10% 0%, oklch(0.93 0.04 190 / 0.45), transparent 32rem), radial-gradient(circle at 100% 10%, oklch(0.92 0.035 220 / 0.5), transparent 28rem);

@@ -112,7 +112,7 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
                   onClick={() => toggleSlot(slot.id)}
                   aria-pressed={selected}
                   className={cn(
-                    'flex flex-col items-start gap-1.5 rounded-lg border p-4 text-left transition-colors',
+                    'flex cursor-pointer flex-col items-start gap-1.5 rounded-lg border p-4 text-left transition-colors',
                     (unavailable || (maxReached && !selected)) && 'cursor-not-allowed border-muted bg-muted/40 opacity-60',
                     !unavailable && !selected && !maxReached && 'hover:border-primary/50 hover:bg-accent',
                     selected && 'border-primary bg-primary/10 ring-1 ring-primary',
