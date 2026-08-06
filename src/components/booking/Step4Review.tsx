@@ -137,7 +137,7 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
         <CardTitle>Semak & Hantar</CardTitle>
         <CardDescription>Sila semak maklumat tempahan anda sebelum menghantar.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+       <CardContent className="space-y-5 px-4 sm:px-6">
         <div className="space-y-3 rounded-lg border p-4 text-sm">
           <SummaryRow label="Tarikh" value={date ? formatDateDisplay(date) : '-'} />
           <Separator />
@@ -152,11 +152,11 @@ export function Step4Review({ onBack, onBackToSlots }: Step4ReviewProps) {
           <SummaryRow label="Tujuan Tempahan" value={purpose || '-'} />
         </div>
 
-        <div className="flex items-center justify-between gap-2 border-t pt-4">
-          <Button variant="ghost" onClick={onBack} disabled={submitting}>
+         <div className="flex flex-col-reverse gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+           <Button className="min-h-11 w-full sm:w-auto" variant="ghost" onClick={onBack} disabled={submitting}>
             Kembali
           </Button>
-          <Button onClick={handleSubmit} disabled={submitting}>
+           <Button className="min-h-11 w-full sm:w-auto" onClick={handleSubmit} disabled={submitting}>
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Hantar Tempahan
           </Button>

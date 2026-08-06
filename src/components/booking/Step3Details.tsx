@@ -83,7 +83,7 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
         <CardTitle>Maklumat Tempahan</CardTitle>
         <CardDescription>Isi maklumat guru, kelas dan tujuan tempahan.</CardDescription>
       </CardHeader>
-      <CardContent>
+       <CardContent className="px-4 sm:px-6">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           {teachersError || kelasError || tujuanError ? (
             <div className="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
@@ -234,11 +234,11 @@ export function Step3Details({ onBack, onNext }: Step3DetailsProps) {
             </div>
           ) : null}
 
-          <div className="flex items-center justify-between gap-2 border-t pt-4">
-            <Button type="button" variant="ghost" onClick={onBack}>
+           <div className="flex flex-col-reverse gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+             <Button className="min-h-11 w-full sm:w-auto" type="button" variant="ghost" onClick={onBack}>
               Kembali
             </Button>
-            <Button type="submit" disabled={teachersLoading}>
+             <Button className="min-h-11 w-full sm:w-auto" type="submit" disabled={teachersLoading}>
               Seterusnya
             </Button>
           </div>

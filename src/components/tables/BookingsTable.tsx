@@ -250,13 +250,13 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="pl-8"
+           <Input
+             value={globalFilter}
+             onChange={(e) => setGlobalFilter(e.target.value)}
+             className="min-h-11 pl-8"
           />
         </div>
-        <div className="flex items-center gap-2">
+         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="flex items-center gap-1.5">
             <Label htmlFor="from" className="text-xs text-muted-foreground">
               Dari
@@ -267,7 +267,7 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
               value={dateFrom}
               max={dateTo || undefined}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="h-9 w-[150px]"
+               className="min-h-11 w-full sm:h-9 sm:w-[150px]"
             />
           </div>
           <div className="flex items-center gap-1.5">
@@ -280,13 +280,14 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
               value={dateTo}
               min={dateFrom || undefined}
               onChange={(e) => setDateTo(e.target.value)}
-              className="h-9 w-[150px]"
+               className="min-h-11 w-full sm:h-9 sm:w-[150px]"
             />
           </div>
           {(dateFrom || dateTo) && (
-            <Button
-              variant="ghost"
-              size="sm"
+             <Button
+               variant="ghost"
+               size="sm"
+               className="min-h-11"
               onClick={() => {
                 setDateFrom('')
                 setDateTo('')
@@ -298,7 +299,7 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
         </div>
       </div>
 
-      <div className="rounded-lg border bg-background">
+       <div className="overflow-x-auto rounded-lg border bg-background">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -375,11 +376,11 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
           {table.getFilteredRowModel().rows.length} tempahan
         </p>
         <div className="flex items-center gap-2">
-          <Select
+           <Select
             value={String(table.getState().pagination.pageSize)}
             onValueChange={(value) => table.setPageSize(Number(value))}
           >
-            <SelectTrigger className="h-9 w-[110px]">
+             <SelectTrigger className="min-h-11 w-[110px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -392,7 +393,8 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
           </Select>
           <Button
             variant="outline"
-            size="sm"
+             size="sm"
+             className="min-h-11"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -400,7 +402,8 @@ export function BookingsTable({ data, isLoading, isError, canManage = false }: B
           </Button>
           <Button
             variant="outline"
-            size="sm"
+             size="sm"
+             className="min-h-11"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >

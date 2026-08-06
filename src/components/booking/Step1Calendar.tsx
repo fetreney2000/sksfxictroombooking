@@ -22,7 +22,7 @@ export function Step1Calendar({ onNext }: Step1CalendarProps) {
           Pilih tarikh tempahan. Tempahan hanya dibenarkan pada hari Isnin hingga Jumaat.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+       <CardContent className="space-y-5 px-4 sm:px-6">
         <Calendar selected={date} onSelect={setDate} disabledDates={blockedDates} />
         {date ? (
           <div className="rounded-lg border bg-muted/50 px-4 py-3 text-sm">
@@ -35,8 +35,8 @@ export function Step1Calendar({ onNext }: Step1CalendarProps) {
             Sila pilih tarikh untuk meneruskan.
           </div>
         )}
-        <div className="flex items-center justify-end gap-2 border-t pt-4">
-          <Button onClick={onNext} disabled={!date}>
+         <div className="flex items-center justify-end gap-2 border-t pt-4">
+           <Button className="min-h-11 w-full sm:w-auto" onClick={onNext} disabled={!date}>
             Seterusnya
           </Button>
         </div>

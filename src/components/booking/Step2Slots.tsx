@@ -76,7 +76,7 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
           ) : null}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5 px-4 sm:px-6">
         {error ? (
           <div className="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -112,7 +112,7 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
                   onClick={() => toggleSlot(slot.id)}
                   aria-pressed={selected}
                   className={cn(
-                    'flex cursor-pointer flex-col items-start gap-1.5 rounded-lg border p-4 text-left transition-colors',
+                    'flex min-h-[88px] cursor-pointer flex-col items-start gap-1.5 rounded-xl border p-4 text-left transition-colors',
                     (unavailable || (maxReached && !selected)) && 'cursor-not-allowed border-muted bg-muted/40 opacity-60',
                     !unavailable && !selected && !maxReached && 'hover:border-primary/50 hover:bg-accent',
                     selected && 'border-primary bg-primary/10 ring-1 ring-primary',
@@ -158,11 +158,11 @@ export function Step2Slots({ onBack, onNext }: Step2SlotsProps) {
             </span>
           </div>
         )}
-        <div className="flex items-center justify-between gap-2 border-t pt-4">
-          <Button variant="ghost" onClick={onBack}>
+        <div className="flex flex-col-reverse gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <Button className="min-h-11 w-full sm:w-auto" variant="ghost" onClick={onBack}>
             Kembali
           </Button>
-          <Button onClick={onNext} disabled={timeSlotIds.length === 0}>
+          <Button className="min-h-11 w-full sm:w-auto" onClick={onNext} disabled={timeSlotIds.length === 0}>
             Seterusnya
           </Button>
         </div>
