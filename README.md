@@ -57,7 +57,7 @@ Semua keupayaan Penyelia, tambahan:
 | Data fetching | TanStack Query v5 |
 | State | Zustand |
 | Styling | Tailwind CSS |
-| UI | shadcn/ui |
+| UI | shadcn/ui (desktop) + Ionic React (mobile) |
 | Table | TanStack Table v8 |
 | Chart | recharts |
 | Backend/DB | Supabase (pelan percuma) |
@@ -189,6 +189,8 @@ src/
   lib/           # datetime.ts, supabaseClient.ts, validators.ts, utils.ts
   store/         # bookingFormStore (Zustand)
   routes/        # guards.tsx
+  apps/          # DesktopApp (shadcn) and MobileApp (Ionic shell)
+  device/        # DeviceModeProvider and useIsMobile
   types/         # database.ts (jenis Supabase), shared.ts
 supabase/
   migrations/    # Skrip SQL (00001 init, 00002 RLS, 00003 seed)
@@ -262,6 +264,19 @@ Setiap jadual mendayakan RLS dengan dasar eksplisit:
 - Manifest: nama "Sistem Tempahan Bilik ICT", `display: standalone`, ikon 192/512 (placeholder dijana oleh `node scripts/generate-icons.mjs`).
 - Service worker (`vite-plugin-pwa`, `registerType: 'autoUpdate'`) mengcache aset statik (app-shell luar talian). Panggilan API Supabase **tidak** diagregat-cache — sentiasa segar.
 - Pemasangan memerlukan HTTPS (disediakan oleh Vercel).
+
+### UI hibrid desktop/mobile
+
+`DeviceModeProvider` memilih cabang UI berdasarkan User-Agent, sokongan sentuhan iPadOS, dan lebar viewport `<768px`. Perubahan saiz atau orientasi dikira semula tanpa mengubah URL, store, cache TanStack Query, atau sesi pengguna. Desktop menggunakan route tree asal dalam `DesktopApp`; telefon dan tablet menggunakan shell Ionic dalam `MobileApp` dengan laluan deep-link yang sama. `MobileApp` dimuatkan secara lazy supaya desktop tidak memuatkan bundle Ionic yang besar.
+
+Ionic React Router v8 masih memerlukan React Router v5, sedangkan aplikasi ini menggunakan React Router v6. Oleh itu, projek mengekalkan Router v6 untuk keserasian deep-link sedia ada dan menggunakan komponen Ionic v8 (`IonRouterOutlet`, menu, page, dan tab bar) sebagai lapisan navigasi mobile tanpa memaksa downgrade router.
+
+Apabila menambah ciri baharu:
+
+1. Letakkan types, API calls, TanStack Query hooks, mutation logic, dan validasi dalam lapisan shared (`src/hooks`, `src/lib`, `src/store`, `src/types`).
+2. Tambah halaman desktop dalam `DesktopApp` dan halaman/wrapper Ionic yang sepadan dalam `MobileApp`; jangan masukkan logik Supabase terus ke dalam shell navigasi.
+3. Kekalkan nama laluan yang sama di kedua-dua route tree supaya pautan tersimpan, PWA standalone, dan refresh deep-link terus berfungsi.
+4. Gunakan token CSS sedia ada (`--primary`, `--background`, `--foreground`, dan sebagainya) untuk komponen Ionic supaya mod warna dan identiti visual kekal selaras.
 
 ### Kata laluan yang kukuh & keselamatan
 - Jangan sekali-kali komit `.env` atau kekunci sebenar. Gunakan pemboleh ubah persekitaran Vercel untuk pengeluaran.
