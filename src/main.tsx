@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import { useAuthStore } from '@/store/authStore'
@@ -19,8 +20,10 @@ void useAuthStore.getState().hydrate()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
         <App />
-      </QueryClientProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   </React.StrictMode>,
 )

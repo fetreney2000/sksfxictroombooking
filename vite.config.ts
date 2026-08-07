@@ -68,7 +68,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
-          ionic: ['@ionic/react', '@ionic/core', 'ionicons'],
           supabase: ['@supabase/supabase-js'],
           query: ['@tanstack/react-query', '@tanstack/react-table'],
           charts: ['recharts'],
